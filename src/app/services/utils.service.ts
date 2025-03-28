@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core'
 
-type Profile = 'administrador' | 'professor' | 'redator' | 'comum'
+type Profile = 'administrador' | 'professor' | 'redator' | 'aluno-completo' | 'aluno-cursos' | 'aluno-comunidade'
 
 @Injectable({
   providedIn: 'root'

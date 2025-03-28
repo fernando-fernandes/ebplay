@@ -20,18 +20,8 @@
   </div>
 
   <div class="flex justify-content-end">
-    <a
-      [href]="class().linkExterno"
-      download
-      pButton
-      pRipple
-      target="_blank"
-      type="button"
-      size="small"
-      [text]="true"
-      label="Baixar material"
-      icon="pi pi-download"
-      class="p-button-primary link-material"></a>
+    <a [href]="class().linkExterno" download pButton pRipple target="_blank" type="button" size="small" [text]="true"
+      label="Baixar material" icon="pi pi-download" class="p-button-primary link-material"></a>
   </div>
 
   <!-- <iframe class="video" [src]="class().linkVideo | sanitizeURL" frameborder="0"></iframe> -->
@@ -40,3 +30,7 @@
 
   <div class="content" [innerHTML]="class().descricao">
   </div>
+
+  <app-community-questions [aulaId]="paramID"></app-community-questions>
+
+</div>

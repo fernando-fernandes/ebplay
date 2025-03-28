@@ -1,4 +1,4 @@
-@import '../../../utils/variables';
+@import "../../../utils/variables";
 
 @mixin hover($bgColor, $textColor: #fff) {
   background-color: darken($bgColor, $amount: 2);
@@ -17,10 +17,6 @@
     width: 3.3rem;
   }
 
-  // &:hover {
-  //   width: 13rem;
-  // }
-
   nav {
     margin-top: 0.8rem;
     display: flex;
@@ -29,21 +25,33 @@
   }
 }
 
-a {
+.nav-item {
   position: relative;
   padding: 0.8rem 1rem;
-  // padding: 0 0.7rem 0 1rem;
-  text-decoration: none;
-  color: $nav-color;
-  font-weight: 500;
-  font-size: 0.85rem;
-  // overflow-x: hidden;
-  text-wrap: nowrap;
-  // display: flex;
-  // align-items: center;
-  // height: 2.5rem;
 
-  &:hover {
+  &.has-children {
+    &:hover .sub-menu {
+      display: block;
+    }
+  }
+
+  .navMenu-Collapsed {
+    padding: 0;
+  }
+
+  &:has(.sub-menu a.active) {
+    @include hover($primary, $secondary);
+    .select-children {
+      @include hover($primary, $secondary);
+    }
+  }
+
+  &:has(a.active) {
+    @include hover($primary, $secondary);
+  }
+
+  &:hover,
+  &:active {
     @include hover($primary, $secondary);
 
     .tooltip {
@@ -51,10 +59,16 @@ a {
       color: $nav-color;
     }
   }
+}
 
-  &:active {
-    background-color: darken($color: $primary, $amount: 3);
-  }
+a {
+  position: relative;
+  padding: 0.8rem 1rem;
+  text-decoration: none;
+  color: $nav-color;
+  font-weight: 500;
+  font-size: 0.85rem;
+  width: 259px;
 
   .text {
     margin-left: 1rem;
@@ -87,10 +101,25 @@ a {
       padding: 0 1rem;
       border-radius: 4px;
       font-weight: 300;
+    }
+  }
+}
 
-      // &:hover {
-      //   color: $secondary;
-      // }
+.sub-menu {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 100%;
+  background-color: $primary;
+  border-left: solid 3px $secondary;
+  z-index: 1;
+
+  a {
+    padding: 0;
+    white-space: nowrap;
+
+    &:hover {
+      @include hover($primary, $secondary);
     }
   }
 }
@@ -105,7 +134,6 @@ a {
   border: none;
   background-color: $primary;
   cursor: pointer;
-  // overflow-x: hidden;
   text-wrap: nowrap;
   padding: 1rem;
   text-align: left;

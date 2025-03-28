@@ -100,21 +100,13 @@ export class ClassesListComponent implements OnInit {
     const params = {
       Tipo: 'Carrossel',
       DataInicio: dayjs(new Date()).format('YYYY/MM/DD'),
-      Dispositivos: [dispositivo]
+      Dispositivos: [dispositivo],
+      Localizacao: 'LivesImersoes'
     }
 
     this.isLoading.set(true)
 
-    // this.listBanners.set([
-    //   {
-    //     titulo: 'Teste 1',
-    //     linkImagem: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS0KI8Ji-LEonZbtjfXPy1KnnbL_eEjgy2bBQ&s',
-    //   }
-    // ])
-
-    // return;
-
-    this.apiService.getBanners(params).subscribe({
+    this.apiService.getBannersDisplay(params).subscribe({
       next: res => {
         console.log('Banners', res.data)
         this.listBanners.set(res.data)

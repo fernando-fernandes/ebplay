@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common'
 import { Component, ElementRef, inject, OnInit, signal, ViewChild } from '@angular/core'
 import {
   AbstractControl,
+  FormArray,
   FormControl,
   FormsModule,
   ReactiveFormsModule,
@@ -37,6 +38,7 @@ import { InputMaskModule } from 'primeng/inputmask'
 import { PasswordModule } from 'primeng/password'
 import { RadioButtonModule } from 'primeng/radiobutton'
 import { ExportTableComponent } from '../../../shared/export-table/export-table.component'
+import { NotificationService } from '../../../services/notification.service'
 
 dayjs.extend(utc)
 dayjs.extend(customParseFormat)
@@ -85,6 +87,7 @@ export class UsersAdminComponent implements OnInit {
   private apiService = inject(ApiService)
   private messageService = inject(MessageService)
   private confirmationService = inject(ConfirmationService)
+  private notificationService = inject(NotificationService)
   @ViewChild('file') file!: ElementRef
 
   imagePreview: string | null = null;
@@ -110,6 +113,7 @@ export class UsersAdminComponent implements OnInit {
   exportCols = signal<any[]>([])
 
   showPassword = signal(true)
+  isModalUpdate = signal(true)
   selectedDateType = 'Criacao'
   dateType = [
     { tipo: 'Criação', valor: 'Criacao' },
@@ -118,15 +122,19 @@ export class UsersAdminComponent implements OnInit {
   ]
 
   status = [
-    { label: 'Ativo', value: 'ativo' },
-    { label: 'Inativo', value: 'inativo' },
+    { label: 'Ativo', value: 'Ativo' },
+    { label: 'Inativo', value: 'Inativo' },
+    { label: 'Suspenso', value: 'Suspenso' },
+    { label: 'Deletado', value: 'Deletado' },
   ]
 
   perfil = [
     { label: 'Administrador', value: 'Administrador' },
     { label: 'Professor', value: 'Professor' },
-    { label: 'Redator', value: 'redator' },
-    { label: 'Comum', value: 'comum' },
+    { label: 'Redator', value: 'Redator' },
+    { label: 'Aluno Completo', value: 'Aluno-Completo' },
+    { label: 'Aluno Cursos', value: 'Aluno-Cursos' },
+    { label: 'Aluno Comunidade', value: 'Aluno-Comunidade' },
   ]
 
   selectedStatus: any | undefined
@@ -136,6 +144,16 @@ export class UsersAdminComponent implements OnInit {
     { nome: 'Suspensos', value: 2 },
     { nome: 'Deletados', value: 3 }
   ]
+
+  /// Por padrão, todos ativados
+  actionNotification = [
+    { id: 0, action: 'NewQuestion', descricao: 'Novas perguntas', whatsApp: true, email: true, pushNotification: true },
+    { id: 1, action: 'NewAnswer', descricao: 'Novas respostas', whatsApp: true, email: true, pushNotification: true },
+    { id: 2, action: 'NewFile', descricao: 'Novos arquivos', whatsApp: true, email: true, pushNotification: true },
+    { id: 3, action: 'NewCalendarItem', descricao: 'Novos itens no calendário', whatsApp: true, email: true, pushNotification: true },
+    { id: 4, action: 'NewNews', descricao: 'Novas notícias', whatsApp: true, email: true, pushNotification: true },
+    { id: 5, action: 'NewClasses', descricao: 'Novas aulas', whatsApp: true, email: true, pushNotification: true }
+  ];
 
   formUser = new UntypedFormGroup({
     nome: new FormControl('', { nonNullable: true }),
@@ -150,12 +168,29 @@ export class UsersAdminComponent implements OnInit {
     dataVencimento: new FormControl('', { nonNullable: true }),
     status: new FormControl('Ativo', { nonNullable: true }),
     imagemPerfil: new FormControl(null, [this.validateFile]),
-
+    preferences: new FormArray(this.actionNotification.map(preferences =>
+      new UntypedFormGroup({
+        action: new FormControl(preferences.action),
+        id: new FormControl(preferences.id),
+        whatsApp: new FormControl(preferences.whatsApp),
+        email: new FormControl(preferences.email),
+        pushNotification: new FormControl(preferences.pushNotification)
+      })
+    ))
   })
 
   ngOnInit(): void {
     this.getUsers()
   }
+
+  get actionControls() {
+    return (this.formUser.get('preferences') as FormArray).controls;
+  }
+
+  getFormControl(index: number, field: string): FormControl {
+    return (this.actionControls[index].get(field) as FormControl);
+  }
+
 
   getUsers() {
     let data
@@ -243,6 +278,7 @@ export class UsersAdminComponent implements OnInit {
     }
     delete body.password
 
+    console.log('body', body)
     this.apiService.updateUser(this.selectedId(), body, this.imagePreview).subscribe({
       next: res => {
         this.messageService.add({ severity: 'success', summary: 'Usuário alterado com sucesso!' })
@@ -355,20 +391,39 @@ export class UsersAdminComponent implements OnInit {
     this.headerModal.set('Adicionar novo usuário')
     this.isBtnAdd.set(true)
     this.showPassword.set(true)
+    this.isModalUpdate.set(false)
     this.modal = true
     this.isBtnReset.set(false)
   }
 
-  openUpdateModal(e: Event, user: any) {
+  async openUpdateModal(e: Event, user: any) {
+    this.setDefaultActionNotification();
+    await this.getPreferenceNotification(e, user);
+  }
+
+  setDefaultActionNotification() {
+    /// retorna o actionNotification para o padrão (true)
+
+    this.actionNotification = this.actionNotification.map(m => ({
+      ...m, // Mantém as outras propriedades do objeto
+      email: true,
+      whatsApp: true,
+      pushNotification: true
+    }));
+  }
+
+  setOpenUpdateModal(e: Event, user: any) {
     this.headerModal.set('Alterar usuário')
     this.selectedId.set(user.id)
     this.isBtnAdd.set(false)
     this.showPassword.set(false)
+    this.isModalUpdate.set(true)
     this.isBtnReset.set(true)
     this.formUser.get('password')?.setValidators([])
     this.formUser.get('password')?.updateValueAndValidity()
-
     this.imagePreview = user.imagemPerfilURL
+    this.formUser.get('preferences')?.setValidators([])
+    this.formUser.get('preferences')?.updateValueAndValidity()
 
     this.formUser.patchValue({
       nome: user.nome,
@@ -378,14 +433,22 @@ export class UsersAdminComponent implements OnInit {
       perfil: user.perfil,
       dataVencimento: dayjs(user.dataVencimento, 'DD/MM/YYYY').toDate(),
       status: user.status,
-      imagemPerfil: user.imagemPerfil
+      imagemPerfil: user.imagemPerfil,
+      preferences: this.actionNotification.map(preferences =>
+      ({
+        action: preferences.action,
+        id: preferences.id,
+        whatsApp: preferences.whatsApp,
+        email: preferences.email,
+        pushNotification: preferences.pushNotification
+      })
+      )
     })
 
     this.selectedEmail.set(user.email)
 
     this.modal = true
   }
-
   closeModal() {
     this.getUsers()
     this.formUser.reset()
@@ -489,6 +552,72 @@ export class UsersAdminComponent implements OnInit {
       reader.readAsDataURL(file);
     }
     console.log(this.imagePreview)
+  }
+
+  async getPreferenceNotification(e: Event, user: any) {
+    this.isLoading.set(true)
+    this.notificationService.getPreferences(user.id).subscribe({
+      next: (res: any) => {
+        console.log('retorno', res)
+        this.setActionPreferences(res);// Atualizar actionNotification com base no response recebido
+
+        this.isLoading.set(false)
+
+        this.setOpenUpdateModal(e, user);
+      },
+      error: err => {
+        console.log(err)
+        this.isLoading.set(false)
+      }
+    })
+  }
+
+  setPreferences(res: any) {
+    this.isLoading.set(true)
+    if (res.length > 0) {
+      const actionArray = this.formUser.get('preferences') as FormArray;
+
+      res.forEach((preference: any) => {
+        const index = this.actionNotification.findIndex(preferences => preferences.action === preference.action);
+        if (index !== -1) {
+          actionArray.at(index).patchValue({
+            action: preference.action,
+            whatsApp: preference.whatsApp,
+            email: preference.email,
+            pushNotification: preference.pushNotification
+          });
+        }
+      });
+
+    }
+    this.isLoading.set(false)
+
+  }
+
+  setActionPreferences(res: any) {
+
+    // Atualizar actionNotification com base no response recebido
+    this.actionNotification = this.actionNotification.map(action => {
+      // Encontrar a preferência correspondente no response
+      const preference = res.find((p: any) => p.action === action.action);
+
+      // Se encontrou a preferência correspondente, atualiza os valores
+      if (preference) {
+
+        return {
+          ...action,
+          whatsApp: preference.whatsApp,
+          email: preference.email,
+          pushNotification: preference.pushNotification
+        };
+      }
+
+      // Se não encontrou, mantém os valores originais
+      return action;
+    });
+    console.log('this.actionNotification ', this.actionNotification)
+    this.setPreferences(res);
+
   }
 
 }

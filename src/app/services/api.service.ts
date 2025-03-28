@@ -116,6 +116,11 @@ export class ApiService {
     return this.http.get<any>(this.apiCursos, { params })
   }
 
+  getCoursesSSO() {
+    return this.http.get<any>(`${this.apiCursos}/sso`)
+  }
+
+
   addCourse(body: any) {
     return this.http.post<any>(this.apiCursos, body)
   }
@@ -367,7 +372,9 @@ export class ApiService {
 
 
     const token = JSON.parse(localStorage.getItem('token')!)?.accessToken
-    console.log(body)
+    console.log('Dentro da service', body)
+    //console.log('D', JSON.stringify(body.preferences))
+
     const formData: FormData = new FormData()
     formData.append('id', body.id)
     formData.append('nome', body.nome)
@@ -377,7 +384,10 @@ export class ApiService {
     formData.append('perfil', body.perfil)
     formData.append('status', body.status)
     formData.append('telefone', body.telefone)
-
+    formData.append('preferences', JSON.stringify(body.preferences));
+    //for (const preference of body.preferences) {
+    //  formData.append('preferences', preference)
+    //}
 
     if (body.imagemPerfil instanceof File) {
       formData.append('imagemPerfil', body.imagemPerfil, body.imagemPerfil.name)
@@ -413,6 +423,11 @@ export class ApiService {
     return this.http.get<any>(`${this.apiBanners}`, { params })
   }
 
+  getBannersDisplay(params?: any) {
+    console.log(params)
+    return this.http.get<any>(`${this.apiBanners}/display`, { params })
+  }
+
   addBanner(body: any, file: File) {
 
     const formData: FormData = new FormData()
@@ -428,6 +443,7 @@ export class ApiService {
     }
     formData.append('dataInicio', body.dataInicio)
     formData.append('dataFim', body.dataFim)
+    formData.append('ativo', body.ativo)
     // formData.append('hashtags', JSON.stringify(body.hashtags)) // Se hashtags for uma lista
     // formData.append('categoriaId', body.categoriaId)
     formData.append('arquivo', file, file.name)
@@ -458,6 +474,7 @@ export class ApiService {
     }
     formData.append('dataInicio', body.dataInicio)
     formData.append('dataFim', body.dataFim)
+    formData.append('ativo', body.ativo)
     // formData.append('categoriaId', body.categoriaId)
     // formData.append('hashtags', JSON.stringify(body.hashtags)) // Se hashtags for uma lista
 

@@ -58,14 +58,62 @@
         </div>
       </div>
 
-      <div class="linkTermo">
-        <a [routerLink]="['../termo-de-seguranca-e-privacidade']" target="_blank">Termo de Segurança e Privacidade da EB
-          Play</a>
-      </div>
     </section>
+
+
+    <section class="content">
+
+      <form [formGroup]="formPreferences">
+        <div class="info preferences">
+          <p-table [value]="actionNotification" responsiveLayout="scroll" [paginator]="false">
+            <ng-template pTemplate="header">
+              <tr>
+                <th>Notificações</th>
+                <th>WhatsApp</th>
+                <th>Email</th>
+                <th>Push</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-action let-i="rowIndex">
+              <tr>
+                <td>{{ action.descricao }}</td>
+                <td>
+                  <label class="toggle-switch">
+                    <input type="checkbox" [formControl]="getFormControl(i, 'whatsApp')" (change)="postPreferences(i)">
+                    <span class="slider"></span>
+                  </label>
+                </td>
+                <td>
+                  <label class="toggle-switch">
+                    <input type="checkbox" [formControl]="getFormControl(i, 'email')" (change)="postPreferences(i)">
+                    <span class="slider"></span>
+                  </label>
+                </td>
+                <td>
+                  <label class="toggle-switch">
+                    <input type="checkbox" [formControl]="getFormControl(i, 'push')" (change)="postPreferences(i)">
+                    <span class="slider"></span>
+                  </label>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+
+        </div>
+
+      </form>
+
+
+
+    </section>
+
 
   </div>
 
+  <div class="linkTermo">
+    <a [routerLink]="['../termo-de-seguranca-e-privacidade']" target="_blank">Termo de Segurança e Privacidade da EB
+      Play</a>
+  </div>
 </app-content>
 
 
@@ -108,7 +156,7 @@
 
       <div class="field col-12 md:col-6">
         <label class="label">E-mail</label>
-        <input pInputText formControlName="email" type="text" class="w-full" />
+        <input pInputText formControlName="email" type="text" readonly class="w-full" />
       </div>
     </div>
 

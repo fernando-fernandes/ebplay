@@ -5,6 +5,7 @@ import { TopHeaderComponent } from "../../shared/top-header/top-header.component
 import { FooterComponent } from "../../shared/footer/footer.component"
 import { DialogModule } from 'primeng/dialog'
 import { ApiService } from '../../services/api.service'
+import dayjs from 'dayjs'
 
 @Component({
   selector: 'app-pages',
@@ -25,7 +26,7 @@ export class PagesComponent {
   bannerId = signal<number | null>(null);
   bannerTitle = signal('');
   bannerUrl = signal('');
-  // bannerUrl = 'https://previews.123rf.com/images/imagecatalogue/imagecatalogue1611/imagecatalogue161116759/66637610-test-text-rubber-seal-stamp-watermark-tag-inside-rounded-rectangular-banner-with-grunge-design-and.jpg';
+  bannerUrlExterno = signal('');
 
   ngOnInit(): void {
     this.getBanners();
@@ -43,17 +44,39 @@ export class PagesComponent {
   }
 
   getBanners() {
-    const banners = [
-      {
-        id: 1,
-        titulo: 'Reclamatória Trabalhista na Prática',
-        linkImagem: 'assets/images/banner.jpg',
-        mostrarACadaXMinutos: 2,
-        mostrarAposXSessoes: 3,
-        mostrarAteXVezesPorUsuario: null,
+    const dispositivo = this.getDevice()
+
+    const params = {
+      Tipo: 'PopUp',
+      DataInicio: dayjs(new Date()).format('YYYY/MM/DD'),
+      Dispositivos: [dispositivo]
+    }
+
+    this.apiService.getBannersDisplay(params).subscribe({
+      next: res => {
+        console.log('Banners', res.data)
+        this.mount(res.data);
       },
-    ]
-    this.mount(banners);
+      error: err => {
+        console.log(err);
+      },
+    })
+  }
+
+  getDevice(): ('Desktop' | 'Mobile' | 'Tablet') {
+    const width = window.innerWidth;
+
+    if (width <= 768) {
+      // Considera que é um celular ou tablet
+      if (width <= 480) {
+        return 'Mobile';
+      } else {
+        return 'Tablet';
+      }
+    } else {
+      // Considera que é um desktop
+      return 'Desktop';
+    }
   }
 
   mount(banners: any[]) {
@@ -124,6 +147,7 @@ export class PagesComponent {
     this.bannerId.set(banner.id)
     this.bannerUrl.set(banner.linkImagem);
     this.bannerTitle.set(banner.titulo);
+    this.bannerUrlExterno.set(banner.linkExterno);
     this.onDialogShow();
   }
 

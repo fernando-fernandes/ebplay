@@ -23,7 +23,11 @@
             <p class="time" title="{{question().dataCriacao}}"> {{ question().dataCriacaoFormatada }} - {{
               question().criador }} </p>
             <p class="enunciado">{{ question().enunciado }}</p>
-            <p class="category" *ngIf="question().categoria">{{question().categoria}}</p>
+            <div class="answer-button">
+              <p class="category" *ngIf="question().categoria">{{question().categoria}}</p>
+              <p-button *ngIf="hasReference()" label="Referência" icon="pi pi-external-link" severity="secondary"
+                size="small" [raised]="true" [text]="true" (onClick)="showLink()" />
+            </div>
           </div>
         </article>
       </ng-container>
@@ -50,7 +54,7 @@
             </h6>
             <span title="{{answer.dataCriacao}}">{{ answer.dataCriacaoFormatada }}</span>
             <!-- Botão de excluir -->
-            <button *ngIf="answer.criadorId == user().id" pButton icon="pi pi-trash"
+            <button *ngIf="answer.criadorId == user().id || user().perfil == 'Administrador'" pButton icon="pi pi-trash"
               class="p-button-text p-button-danger delete-btn" (click)="confirmDelete(answer)"></button>
             <p>{{ answer.texto }}</p>
           </div>

@@ -1,23 +1,23 @@
 import { CommonModule } from '@angular/common'
-import { Component, inject, OnInit, signal } from '@angular/core'
+import { Component, inject, Input, signal } from '@angular/core'
 import { FormsModule } from '@angular/forms'
 import { ActivatedRoute } from '@angular/router'
 import { ButtonModule } from 'primeng/button'
 import { RippleModule } from 'primeng/ripple'
-import { concatMap, of, tap } from 'rxjs'
-import { ApiService } from '../../../services/api.service'
-import { TipoCategoria } from '../../../models/model'
-import { DropdownModule } from 'primeng/dropdown'
+import { ApiService } from '../../services/api.service'
+import { TipoCategoria } from '../../models/model'
 
 import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 import utc from 'dayjs/plugin/utc'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import updateLocale from 'dayjs/plugin/updateLocale'
-import { BackButtonComponent } from "../../../shared/back-button/back-button.component"
+import { DropdownModule } from 'primeng/dropdown'
 import { ConfirmationService, MessageService } from 'primeng/api'
+import { DialogModule } from 'primeng/dialog'
 import { ConfirmDialogModule } from 'primeng/confirmdialog'
-import { CommunityQuestionsComponent } from '../../../shared/community-questions/community-questions.component'
+
+
 
 dayjs.extend(utc)
 dayjs.extend(customParseFormat)
@@ -43,7 +43,7 @@ dayjs.updateLocale('en', {
 })
 
 @Component({
-  selector: 'app-news-detail',
+  selector: 'app-community-questions',
   standalone: true,
   imports: [
     CommonModule,
@@ -51,35 +51,45 @@ dayjs.updateLocale('en', {
     RippleModule,
     FormsModule,
     DropdownModule,
+    DialogModule,
     ConfirmDialogModule,
-    BackButtonComponent,
-    CommunityQuestionsComponent
+    // SanitizeURLPipe
   ],
   providers: [MessageService, ConfirmationService],
-  templateUrl: './news-detail.component.html',
-  styleUrl: './news-detail.component.scss'
+  templateUrl: './community-questions.component.html',
+  styleUrl: './community-questions.component.scss'
 })
-export class NewsDetailComponent implements OnInit {
-
+export class CommunityQuestionsComponent {
   private route = inject(ActivatedRoute)
   private apiService = inject(ApiService)
-  private confirmationService = inject(ConfirmationService)
   private messageService = inject(MessageService)
+  private confirmationService = inject(ConfirmationService)
 
-  news = signal<any>({})
-  questions = signal<any[]>([])
-  paramID = this.route.snapshot.paramMap.get('id')
-  enunciado = signal('')
+  @Input() aulaId: String | null = null;
+  @Input() noticiaId: String | null = null;
+
   user = signal<any>({})
+  class = signal<any>({})
+  paramID = this.route.snapshot.paramMap.get('id')
   categorias = signal<any[]>([])
   selectedCategory: any = ''
+  enunciado = signal('')
+  questions = signal<any[]>([])
+  isBtnAddLoading = signal(false)
+  parametro = signal<any>({})
 
+  player!: YT.Player
+  videoId = signal<any>('')
 
   ngOnInit(): void {
-    this.getData(this.paramID)
+    console.log('this.aulaId', this.aulaId)
+    console.log('this.noticiaId', this.aulaId)
+
     this.getUser()
     this.getCategories()
+    this.getQuestions()
   }
+
 
   getUser() {
     if (!!localStorage.getItem('user')) {
@@ -87,23 +97,74 @@ export class NewsDetailComponent implements OnInit {
     }
   }
 
-  getData(paramaID: any) {
 
-    this.apiService.getNewsById(parseInt(paramaID)).pipe(
-      tap(res => this.news.set(res))
-    )
-      .subscribe({
-        next: res => {
-          // this.questions.set(res.data)
-        },
-        error: err => {
+  getCategories() {
 
-        }
-      })
+    const tipo: TipoCategoria = 'Pergunta'
+
+    const params = {
+      tipoCategoria: tipo
+    }
+
+    this.apiService.getCategories(params).subscribe({
+      next: res => {
+        this.categorias.set(res.data)
+      },
+      error: err => {
+        console.log(err)
+      }
+    })
   }
 
-  getQuestions(paramaID: any) {
-    this.apiService.getQuestions({ NoticiaId: paramaID })
+  savePlayer(player: any) {
+    this.player = player
+    this.player.loadVideoById(this.videoId())
+  }
+
+
+  addQuestion() {
+    this.isBtnAddLoading = signal(true);
+
+    const body = {
+      enunciado: this.enunciado(),
+      categoriaId: this.selectedCategory,
+      aulaId: this.aulaId,
+      noticiaId: this.noticiaId
+    }
+
+    this.apiService.addQuestion(body).subscribe({
+      next: res => {
+        this.getQuestions()
+        this.enunciado.set('')
+        this.selectedCategory = ''
+        this.isBtnAddLoading = signal(false);
+      },
+      error: err => {
+        console.log(err)
+        this.isBtnAddLoading = signal(false);
+      }
+
+
+
+    })
+  }
+
+
+  getQuestions() {
+
+    if (this.aulaId != null) {
+      this.parametro.set({ AulaId: this.aulaId });
+
+    }
+
+    if (this.noticiaId != null) {
+      this.parametro.set({ NoticiaId: this.noticiaId });
+
+    }
+
+    console.log('parametro', this.parametro())
+
+    this.apiService.getQuestions(this.parametro())
       .subscribe({
         next: res => {
           const arr = res.data.map((item: any) => {
@@ -134,53 +195,9 @@ export class NewsDetailComponent implements OnInit {
       })
   }
 
-  getCategories() {
-
-    const tipo: TipoCategoria = 'Pergunta'
-
-    const params = {
-      tipoCategoria: tipo
-    }
-
-    this.apiService.getCategories(params).subscribe({
-      next: res => {
-        this.categorias.set(res.data)
-      },
-      error: err => {
-        console.log(err)
-      }
-    })
-  }
-
-  addQuestion() {
-
-    const body = {
-      enunciado: this.enunciado(),
-      categoriaId: this.selectedCategory,
-      noticiaId: this.paramID
-    }
-
-    this.apiService.addQuestion(body).subscribe({
-      next: res => {
-        console.log(res)
-        this.getQuestions(this.paramID)
-        this.enunciado.set('')
-        this.selectedCategory = ''
-      },
-      error: err => {
-        console.log(err)
-      }
-    })
-  }
-
-  updateAnswer(id: any) {
-
-    console.log(id)
-
-  }
-
 
   confirmDeleteAnswer(resposta: any) {
+    console.log('11111111')
     this.confirmationService.confirm({
       message: `Deseja realmente excluir a resposta: "${(resposta.texto.length > 50 ? resposta.texto.substring(0, 50) + '...' : resposta.texto)}"?`,
       header: 'Excluir respota',
@@ -196,7 +213,9 @@ export class NewsDetailComponent implements OnInit {
         this.deleteAnswer(resposta?.id);
 
       }
+
     });
+
   }
 
   deleteAnswer(id: number) {
@@ -204,12 +223,11 @@ export class NewsDetailComponent implements OnInit {
     this.apiService.deleteAnswer(id).subscribe({
       next: () => {
         this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Resposta excluída com sucesso!' });
-        this.getData(this.paramID)
+        this.getQuestions()
       },
       error: (err) => {
         this.messageService.add({ severity: 'error', summary: err });
       }
     });
   }
-
 }

@@ -1,7 +1,7 @@
-import { Component, computed, ElementRef, inject, OnInit, signal, ViewChild } from '@angular/core'
+import { ChangeDetectorRef, Component, computed, ElementRef, inject, OnInit, signal, ViewChild } from '@angular/core'
 import { ContentComponent } from "../../../shared/content/content.component"
 import { CommonModule } from '@angular/common'
-import { AbstractControl, FormControl, FormsModule, ReactiveFormsModule, UntypedFormGroup, Validators } from '@angular/forms'
+import { AbstractControl, FormArray, FormControl, FormsModule, ReactiveFormsModule, UntypedFormGroup, Validators } from '@angular/forms'
 import { ApiService } from '../../../services/api.service'
 import { ConfirmationService, MessageService } from 'primeng/api'
 import { InputTextModule } from 'primeng/inputtext'
@@ -16,6 +16,8 @@ import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader'
 import { InputMaskModule } from 'primeng/inputmask'
 import { UtilsService } from '../../../services/utils.service'
 import { RouterModule } from '@angular/router'
+import { TableModule } from 'primeng/table'
+import { NotificationService } from '../../../services/notification.service'
 
 @Component({
   selector: 'app-profile',
@@ -35,7 +37,8 @@ import { RouterModule } from '@angular/router'
     DropdownModule,
     InputMaskModule,
     NgxSkeletonLoaderModule,
-    RouterModule
+    RouterModule,
+    TableModule
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './profile.component.html',
@@ -46,7 +49,7 @@ export class ProfileComponent implements OnInit {
   private apiService = inject(ApiService)
   private messageService = inject(MessageService)
   private utilsService = inject(UtilsService)
-  private confirmationService = inject(ConfirmationService)
+  private notificationService = inject(NotificationService)
 
   @ViewChild('file') file!: ElementRef
 
@@ -71,9 +74,39 @@ export class ProfileComponent implements OnInit {
     imagemPerfil: new FormControl(null, [this.validateFile]),
   })
 
+  actionNotification = [
+    { id: 0, nome: 'NewQuestion', descricao: 'Novas perguntas', whatsApp: true, email: true, push: true },
+    { id: 1, nome: 'NewAnswer', descricao: 'Novas respostas', whatsApp: true, email: true, push: true },
+    { id: 2, nome: 'NewFile', descricao: 'Novos arquivos', whatsApp: true, email: true, push: true },
+    { id: 3, nome: 'NewCalendarItem', descricao: 'Novos itens no calendário', whatsApp: true, email: true, push: true },
+    { id: 4, nome: 'NewNews', descricao: 'Novas notícias', whatsApp: true, email: true, push: true },
+    { id: 5, nome: 'NewClasses', descricao: 'Novas aulas', whatsApp: true, email: true, push: true }
+  ];
+
+  formPreferences = new UntypedFormGroup({
+    action: new FormArray(this.actionNotification.map(action =>
+      new UntypedFormGroup({
+        id: new FormControl(action.id),
+        whatsApp: new FormControl(action.whatsApp),
+        email: new FormControl(action.email),
+        push: new FormControl(action.push)
+      })
+    ))
+  });
+
+
   ngOnInit(): void {
     this.getUser()
   }
+
+  get actionControls() {
+    return (this.formPreferences.get('action') as FormArray).controls;
+  }
+
+  getFormControl(index: number, field: string): FormControl {
+    return (this.actionControls[index].get(field) as FormControl);
+  }
+
 
   getUser() {
     this.isLoading.set(true)
@@ -88,6 +121,9 @@ export class ProfileComponent implements OnInit {
         this.firstName.set(name[0])
         this.lastName.set(name[name.length - 1])
         this.isLoading.set(false)
+
+        this.getPreferenceNotification();
+
       },
       error: err => {
         console.log(err)
@@ -95,6 +131,7 @@ export class ProfileComponent implements OnInit {
       }
     })
   }
+
 
   updateUser() {
     this.isBtnAddLoading.set(true)
@@ -182,4 +219,99 @@ export class ProfileComponent implements OnInit {
     console.log(this.imagePreview)
   }
 
+  getPreferenceNotification() {
+    this.isLoading.set(true)
+    this.notificationService.getPreferences(this.user().id).subscribe({
+      next: (res: any) => {
+        console.log('res', res)
+        this.setActionPreferences(res);
+
+        this.isLoading.set(false)
+      },
+      error: err => {
+        console.log(err)
+        this.isLoading.set(false)
+      }
+    })
+  }
+
+  setPreferences(res: any) {
+    this.isLoading.set(true)
+    if (res.length > 0) {
+      const actionArray = this.formPreferences.get('action') as FormArray;
+
+      res.forEach((preference: any) => {
+        const index = this.actionNotification.findIndex(action => action.nome === preference.action);
+        if (index !== -1) {
+          actionArray.at(index).patchValue({
+            whatsApp: preference.whatsApp,
+            email: preference.email,
+            push: preference.pushNotification
+          });
+        }
+      });
+
+      console.log('Estado final do formPreferences:   ', this.formPreferences.value)
+    }
+    this.isLoading.set(false)
+
+  }
+
+  setActionPreferences(res: any) {
+    console.log('res', res)
+
+    // Atualizar actionNotification com base no response recebido
+    this.actionNotification = this.actionNotification.map(action => {
+      // Encontrar a preferência correspondente no response
+      const preference = res.find((p: any) => p.action === action.nome);
+
+      // Se encontrou a preferência correspondente, atualiza os valores
+      if (preference) {
+
+        return {
+          ...action,
+          whatsApp: preference.whatsApp,
+          email: preference.email,
+          push: preference.pushNotification
+        };
+      }
+
+      // Se não encontrou, mantém os valores originais
+      return action;
+    });
+
+    this.setPreferences(res);
+
+  }
+
+  postPreferences(index: number) {
+    this.isLoading.set(true)
+    const actionArray = this.formPreferences.get('action') as FormArray;
+
+    const control = actionArray.at(index) as UntypedFormGroup;
+
+    const body = [{
+      action: this.actionNotification.find(action => action.id === control.get('id')?.value)?.nome || '',
+      whatsApp: control.get('whatsApp')?.value,
+      email: control.get('email')?.value,
+      pushNotification: control.get('push')?.value
+    }];
+    console.log(body)
+    this.notificationService.postPreference(this.user().id, body).subscribe({
+      next: (res: any) => {
+        this.setPreferences(res);
+        this.isLoading.set(false)
+        this.messageService.add({ severity: 'success', summary: 'Preferências de notificações alteradas com sucesso!' })
+
+      },
+      error: err => {
+        console.log(err)
+        this.isLoading.set(false)
+      }
+    })
+
+
+    console.log(body);
+    this.isLoading.set(false);
+  }
 }

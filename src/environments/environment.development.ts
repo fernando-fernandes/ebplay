@@ -1,4 +1,4 @@
 export const environment = {
   production: false,
-  api: 'https://ebplay-aegjcdfgcnf8cjaz.eastus-01.azurewebsites.net/api'
+  api: 'https://localhost:7001/api'
 }

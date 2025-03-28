@@ -65,4 +65,13 @@ export class NotificationService {
       }
     });
   }
+
+  getPreferences(userId: string) {
+    return this.http.get<any[]>(`${this.apiUrl}/preference/${userId}`)
+  }
+
+  postPreference(userId: string, body: any) {
+    return this.http.post<any>(`${this.apiUrl}/preference/${userId}`, body)
+
+  }
 }

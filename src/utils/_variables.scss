@@ -8,6 +8,17 @@ $radius: 0.6rem;
 $side-space: 5rem;
 $shadow: rgba(0, 0, 0, 0.4) 0 0 2rem -1.4rem;
 
+// FONT SCALE
+$font-scale: 0.9;
+
+// BASE FONT SIZE
+$base-font-size: 1rem;
+
+// Apply font scale
+html {
+  font-size: $base-font-size * $font-scale;
+}
+
 // NAV MENU
 $nav-icon-size: 0.95rem;
 $nav-color: rgba(255 255 255 / 0.7);

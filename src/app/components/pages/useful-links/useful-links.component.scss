@@ -14,6 +14,10 @@
   height: 20%;
   width: 23%;
   transition: transform 0.3s ease; // Adiciona uma transição suave
+  border: 2px solid #f2f2f2; // Adiciona uma borda
+  background-color: #f8f9fa; // Adiciona um fundo
+  border-radius: 5px; // Adiciona cantos arredondados
+  padding: 10px; // Adiciona um preenchimento interno
 }
 
 .link-button:hover {

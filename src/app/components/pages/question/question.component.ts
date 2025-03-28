@@ -182,6 +182,11 @@ export class QuestionComponent implements OnInit {
   }
 
   openModal() {
+    this.getUser();
+    if (this.user().perfil.toLowerCase() != 'professor') {
+      this.modal = true;
+      return;
+    }
     this.confirmationService.confirm({
       message: 'Deseja reservar a pergunta por 10 minutos para que outros professores não respondam?',
       header: 'Confirmação',
@@ -190,20 +195,7 @@ export class QuestionComponent implements OnInit {
       acceptButtonStyleClass: ' p-button p-button-sm p-button-primary',
       rejectButtonStyleClass: 'p-button p-component p-button-secondary p-button-text p-button-sm',
       accept: () => {
-        let perguntaId
-        perguntaId = {
-          perguntaId: this.paramID
-        }
-        this.apiService.bookQuestion(parseInt(this.paramID!)).subscribe({
-          next: () => {
-            this.messageService.add({ severity: 'success', summary: 'Pergunta reservada com sucesso!' })
-            this.modal = true;
-          },
-          error: (err) => {
-            this.messageService.add({ severity: 'warn', summary: err.error })
-            console.error('Erro ao reservar:', err);
-          }
-        });
+        this.answerQuestion();
       },
       reject: () => {
         this.modal = true;
@@ -211,6 +203,35 @@ export class QuestionComponent implements OnInit {
     });
   }
 
+  hasReference() {
+    return this.question().noticiaId || this.question().aulaId;
+  }
+
+  showLink() {
+    ;
+    if (this.question().noticiaId) {
+      window.open(`/news/${this.question().noticiaId}`, '_blank');
+    } else if (this.question().aulaId) {
+      window.open(`/class/${this.question().aulaId}`, '_blank');
+    }
+  }
+
+  answerQuestion() {
+    let perguntaId
+    perguntaId = {
+      perguntaId: this.paramID
+    }
+    this.apiService.bookQuestion(parseInt(this.paramID!)).subscribe({
+      next: () => {
+        this.messageService.add({ severity: 'success', summary: 'Pergunta reservada com sucesso!' })
+        this.modal = true;
+      },
+      error: (err) => {
+        this.messageService.add({ severity: 'warn', summary: err.error })
+        console.error('Erro ao reservar:', err);
+      }
+    });
+  }
 
   confirmDelete(resposta: any) {
     this.confirmationService.confirm({

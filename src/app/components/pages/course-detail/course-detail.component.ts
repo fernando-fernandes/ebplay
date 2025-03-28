@@ -72,13 +72,17 @@ export class CourseDetailComponent {
 
     this.apiService.getCourse(paramaID).subscribe({
       next: res => {
+        res.Modulos.forEach((modulo: any) => {
+          modulo.Aulas.forEach((aula: any) => {
+            if (!aula.linkVideo) {
+              aula.linkVideo = "https://player.vimeo.com/video/779586800";
+            }
+          });
+        });
+
         var linkVideo = res.Modulos[0].Aulas[0].linkVideo;
-        if (linkVideo != null) {
-          const unsafeUrl = this.playerUrl + linkVideo.slice(18, 27)
-          this.video = this.sanitizer.bypassSecurityTrustResourceUrl(unsafeUrl)
-        } else {
-          this.video = "Não há video disponível para esta aula";
-        }
+        const unsafeUrl = this.playerUrl + linkVideo.slice(18, 27)
+        this.video = this.sanitizer.bypassSecurityTrustResourceUrl(unsafeUrl);
 
         this.moduleTitle.set(res.Modulos[0].titulo)
         this.classTitle.set(res.Modulos[0].Aulas[0].titulo)

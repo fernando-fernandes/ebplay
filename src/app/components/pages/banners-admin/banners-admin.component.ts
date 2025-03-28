@@ -102,8 +102,11 @@ export class BannersAdminComponent implements OnInit {
   ]
 
   localizacoes = [
-    { name: 'Home', value: 'Home' },
-    { name: 'Comunidade', value: 'Comunidade' },
+    { name: 'Novidades e Atualizações', value: 'NovidadesAtualizacoes' },
+    { name: 'Lives e Imersões', value: 'LivesImersoes' },
+    { name: 'Comunidade Tira-Dúvidas', value: 'Comunidade' },
+    { name: 'Calendário do DP', value: 'Calendario' },
+    { name: 'Modelos e Checklists', value: 'Checklists' },
   ]
 
   tipos = [
@@ -129,6 +132,7 @@ export class BannersAdminComponent implements OnInit {
 
     dataInicio: new FormControl('', { validators: Validators.required, nonNullable: true }),
     dataFim: new FormControl('', { nonNullable: true }),
+    ativo: new FormControl(false, { nonNullable: true }),
     // categoriaId: new FormControl('', { nonNullable: true }),
     // hashtags: new FormControl<string[] | null>([], { nonNullable: true })
   })
@@ -138,7 +142,6 @@ export class BannersAdminComponent implements OnInit {
 
   ngOnInit(): void {
     this.getBanners()
-    this.getCategories()
   }
 
   getBanners() {
@@ -171,7 +174,8 @@ export class BannersAdminComponent implements OnInit {
             dataFim: dayjs(item.dataFim).format('DD/MM/YYYY'),
             tipo: item.tipo,
             localizacao: item.localizacao,
-            dispositivos: item.dispositivos
+            dispositivos: item.dispositivos,
+            ativo: item.ativo
           }
         })
 
@@ -186,25 +190,6 @@ export class BannersAdminComponent implements OnInit {
         this.isLoading.set(false)
       }
     })
-  }
-
-
-  getCategories() {
-    // const tipo: TipoCategoria = 'Aula'
-
-    // const params = {
-    //   tipoCategoria: tipo
-    // }
-
-
-    // this.apiService.getCategories(params).subscribe({
-    //   next: res => {
-    //     this.categorias.set(res.data)
-    //   },
-    //   error: err => {
-    //     console.log(err)
-    //   }
-    // })
   }
 
   addBanner() {
@@ -373,6 +358,7 @@ export class BannersAdminComponent implements OnInit {
       dispositivos: banner.dispositivos,
       dataInicio: dayjs(banner.dataInicio, 'DD/MM/YYYY').toDate(),
       dataFim: dayjs(banner.dataFim, 'DD/MM/YYYY').toDate(),
+      ativo: banner.ativo
       // categoriaId: banner.categoriaId,
       // hashtags: banner.hashtags
     })
@@ -405,6 +391,7 @@ export class BannersAdminComponent implements OnInit {
         "Link Imagem": item.linkImagem,
         "Data Criação": dayjs(item.dataCriacao).format('DD/MM/YYYY'),
         "Data Atualização": dayjs(item.dataAtualizacao).format('DD/MM/YYYY'),
+        "Ativo": item.ativo
       }
     })
 
@@ -425,6 +412,7 @@ export class BannersAdminComponent implements OnInit {
         { width: 35 }, // Link Externo
         { width: 15 }, // Data Criação
         { width: 15 }, // Data Atualização
+        { width: 5 }, // Ativo
       ]
     )
     this.exportData.set(data)

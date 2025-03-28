@@ -1,35 +1,46 @@
 <div class="navMenu" [ngClass]="{'isCollapsed': isNavMenuCollapsed()}">
 
-
   <button type="button" class="toggleNavMenu" (click)="onToggleNavMenu()">
     @switch (isNavMenuCollapsed()) {
-
     @case (true) {
     <i [class]="iconType() + ' fa-chevrons-right icon'"></i>
     }
-
     @case (false) {
     <i [class]="iconType() + ' fa-chevrons-left icon'"></i>
     }
-
     }
   </button>
 
   <nav>
     @for (item of routes; track $index) {
-
     @if (item.isVisible) {
+    <div class="nav-item" [ngClass]="{'has-children': item.children?.length}">
+      <a [routerLink]="item.route"
+        [ngClass]="{'select-children': item.children?.length, 'navMenu-Collapsed': isNavMenuCollapsed()}"
+        routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="apiExterna(item)"
+        [title]="item.text">
 
-    <a [routerLink]="item.route" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+        <i [class]="item.icon + ' icon'"></i>
+        <span class="text" *ngIf="!isNavMenuCollapsed()">{{ item.text }}</span>
+      </a>
+      @if (item.children?.length) {
+      <div class="sub-menu">
+        @for (child of item.children; track $index) {
+        @if (child.isVisible) {
+        <div class="nav-item" [ngClass]="{'nav-SubMenu-Collapsed': isNavMenuCollapsed()}">
+          <a [routerLink]="child.route" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+            (click)="apiExterna(child)">
+            <i [class]="child.icon + ' icon'"></i>
+            <span class="text">{{ child.text }}</span>
+          </a>
+        </div>
 
-      <i [class]="item.icon + ' icon'"></i>
-      <span class="text">{{ item.text }}</span>
-
-      <p class="tooltip" *ngIf="isNavMenuCollapsed()"><span>{{ item.text }}</span></p>
-    </a>
-
+        }
+        }
+      </div>
+      }
+    </div>
     }
-
     }
   </nav>
 </div>

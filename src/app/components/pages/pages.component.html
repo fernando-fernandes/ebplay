@@ -15,9 +15,11 @@
   <p-dialog [header]="bannerTitle()" [(visible)]="displayDialog" [modal]="true" [style]="{ width: '1000px' }"
     showEffect="fade" (onAfterHide)="onDialogHide()" (onHide)="onCloseClick()">
     <div class="ui-fluid" style="text-align: center; padding: 20px;">
-      @if (bannerUrl()) {
-      <img [src]="bannerUrl()" alt="Banner" style="max-width: 100%; height: auto; border: 1px solid #ccc;" />
-      }
+      <a [href]="bannerUrlExterno()" target="_blank">
+        @if (bannerUrl()) {
+        <img [src]="bannerUrl()" alt="Banner" style="max-width: 100%; height: auto; border: 1px solid #ccc;" />
+        }
+      </a>
     </div>
   </p-dialog>
 

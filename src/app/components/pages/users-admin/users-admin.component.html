@@ -153,17 +153,16 @@
       </p>
     </div>
 
-
     <div class="formgrid grid">
       <div class="field col-12 md:col-6">
         <label class="label">Nome</label>
         <input pInputText formControlName="nome" type="text" class="w-full" />
       </div>
-
       <div class="field col-12 md:col-6">
         <label class="label">E-mail</label>
         <input pInputText formControlName="email" type="text" class="w-full" />
       </div>
+
     </div>
 
     <div class="formgrid grid">
@@ -208,11 +207,58 @@
             appendTo="body" />
         </div>
       </div>
-      <div class="field col-12 md:col-4">
-        <div class="mt-4">
-          <p-checkbox label="Ativo" [binary]="true" trueValue="Ativo" falseValue="Inativo" formControlName="status" />
+      <div class="field col-12 md:col-6">
+        <label class="label">Status</label>
+        <div>
+
+          <p-dropdown [options]="status" formControlName="status" optionLabel="label" optionValue="value"
+            appendTo="body">
+            <ng-template pTemplate="selectedItem" let-selectedOption>
+              <div class="flex align-items-center gap-2">
+                <div>{{ selectedOption.label }}</div>
+              </div>
+            </ng-template>
+          </p-dropdown>
+
         </div>
       </div>
+    </div>
+
+    <div class="info preferences" *ngIf="isModalUpdate()">
+      <p-table [value]="actionNotification" responsiveLayout="scroll" [paginator]="false">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Notificações</th>
+            <th>WhatsApp</th>
+            <th>Email</th>
+            <th>Push</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-action let-i="rowIndex">
+          <tr>
+            <td>{{ action.descricao }}</td>
+            <td>
+              <label class="toggle-switch">
+                <input type="checkbox" [formControl]="getFormControl(i, 'whatsApp')">
+                <span class="slider"></span>
+              </label>
+            </td>
+            <td>
+              <label class="toggle-switch">
+                <input type="checkbox" [formControl]="getFormControl(i, 'email')">
+                <span class="slider"></span>
+              </label>
+            </td>
+            <td>
+              <label class="toggle-switch">
+                <input type="checkbox" [formControl]="getFormControl(i, 'pushNotification')">
+                <span class="slider"></span>
+              </label>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+
     </div>
 
     <div class="flex justify-content-between gap-4 mt-5">
@@ -235,4 +281,7 @@
       </div>
     </div>
   </form>
+
+
+
 </p-dialog>

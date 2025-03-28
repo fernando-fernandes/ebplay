@@ -2,7 +2,8 @@
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
+  width: inherit;
+  max-width: 800px; // Limite a largura máxima para melhorar a legibilidade
   height: 100%;
   background: rgba(0, 0, 0, 0.5);
   display: flex;
@@ -36,8 +37,41 @@
   height: 80%; // Defina a altura fixa conforme necessário
   overflow-y: auto;
   margin-bottom: 20px;
-  padding-right: 20px;
   text-align: left;
+  line-height: 1.6;
+  padding: 20px; // Adicione padding para espaçamento interno
+  margin: 0 auto; // Centralize o conteúdo
+
+  h1,
+  h2,
+  h3 {
+    text-align: center;
+    margin-top: 20px; // Adicione espaçamento acima dos títulos
+    margin-bottom: 10px; // Adicione espaçamento abaixo dos títulos
+  }
+
+  p {
+    margin: 15px 0; // Aumente o espaçamento entre parágrafos
+  }
+
+  ul {
+    margin: 15px 0; // Aumente o espaçamento acima e abaixo das listas
+    padding-left: 20px;
+    list-style-type: disc; // Adicione marcadores às listas
+  }
+
+  li {
+    margin-bottom: 10px; // Adicione espaçamento entre os itens da lista
+  }
+
+  strong {
+    font-weight: bold;
+  }
+
+  a {
+    color: #007bff; // Adicione cor aos links
+    text-decoration: underline; // Adicione sublinhado aos links
+  }
 }
 
 #buttons {
