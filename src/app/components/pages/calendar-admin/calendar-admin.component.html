@@ -1,0 +1,250 @@
+<p-toast [life]="4000" />
+<p-confirmDialog />
+
+<app-page-title
+  name="Gestão de calendário do DP"
+  buttonLabel="Novo evento"
+  [button]="true"
+  (btnClick)="openModal()">
+</app-page-title>
+
+<app-content>
+
+  <div class="grid mb-4 align-items-end">
+    <div class="col-12 md:col-4 lg:col-3 flex-column flex">
+      <label class="label">Pesquisar</label>
+      <div>
+        <input type="text" pInputText [(ngModel)]="search" (input)="getCalendarItems()" />
+      </div>
+    </div>
+
+    <div class="col-12 md:col-8 lg:col-4 flex-column flex">
+      <label class="label">Filtrar por data</label>
+      <p-calendar
+        [(ngModel)]="rangeDates"
+        (onSelect)="getCalendarItems()"
+        (onClear)="getCalendarItems()"
+        selectionMode="range"
+        [readonlyInput]="true"
+        [numberOfMonths]="2"
+        [showClear]="true"
+        [showButtonBar]="true"
+        [hideOnDateTimeSelect]="true"
+        rangeSeparator="à" />
+    </div>
+
+    <!-- <div class="col-12 md:col-8 lg:col-4 flex-column flex justify-content-end">
+      <p-button
+        label="Buscar"
+        severity="secondary"
+        [text]="false" />
+    </div> -->
+  </div>
+
+  <ng-container *ngIf="!isLoading()">
+
+    @if (calendar().length > 0) {
+
+
+    <div class="grid mb-4">
+      <div class="col-12 md:col-6">
+        <p-button
+          label="Excluir itens selecionados"
+          [text]="true"
+          severity="danger"
+          size="small"
+          icon="pi pi-trash"
+          [disabled]="!selectedCalendar || !selectedCalendar.length"
+          (onClick)="deleteSelectedProducts($event, selectedCalendar)" />
+      </div>
+
+      <div class="col-12 md:col-6">
+        <app-export-table [data]="exportData()" [fileName]="exportFileName()" [cols]="exportCols()" />
+      </div>
+    </div>
+
+    <p-table
+      #dt
+      [(selection)]="selectedCalendar"
+      [value]="calendar()"
+      [tableStyle]="{ 'min-width': '50rem' }"
+      [rowsPerPageOptions]="[10, 30, 50]"
+      [paginator]="true"
+      [rows]="10"
+      [rowHover]="true"
+      dataKey="id"
+      [showCurrentPageReport]="true"
+      [globalFilterFields]="['titulo', 'descricao']"
+      currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} eventos">
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 4rem"><p-tableHeaderCheckbox /></th>
+          <th>Imagem</th>
+          <th style="width: 15rem">Título</th>
+          <th style="width: 30rem">Descrição</th>
+          <th>Data</th>
+          <th>Categoria</th>
+          <th class="text-center">Ações</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-calendar>
+        <tr>
+          <td class="align-content-start">
+            <p-tableCheckbox [value]="calendar" />
+          </td>
+          <td class="align-content-start"><img [src]="calendar.linkImagem" alt="" width="50" /></td>
+          <td class="text-sm align-content-start">{{ calendar.titulo | truncate: 50}}</td>
+          <td class="text-sm align-content-start">{{ calendar.descricao | truncate }}</td>
+          <td class="text-sm align-content-start">{{ calendar.data }}</td>
+          <td class="align-content-start"><p-tag styleClass="categoria" severity="info" [value]="calendar.categoria" /></td>
+          <td class=" align-content-start">
+            <div class="flex align-items-center justify-content-center gap-2">
+              <button
+                pButton
+                pRipple
+                size="small"
+                type="button"
+                icon="pi pi-pencil"
+                class="p-button-rounded p-button-text"
+                (click)="openUpdateModal($event, calendar)"></button>
+              <button
+                pButton
+                pRipple
+                size="small"
+                type="button"
+                severity="danger"
+                icon="pi pi-trash"
+                class="p-button-rounded p-button-text"
+                (click)="deleteEvent($event, calendar)"></button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="9">A pesquisa com o termo "{{search()}}" não encontrou nenhum resultado.</td>
+        </tr>
+      </ng-template>
+    </p-table>
+    } @else {
+    <p class="noItems">Nenhum item encontrado.</p>
+    }
+
+  </ng-container>
+
+  <ng-container *ngIf="isLoading()">
+    <ngx-skeleton-loader [theme]="{width: '240px', height: '2.5rem'}" />
+    <ngx-skeleton-loader count="6" [theme]="{width: '100%', height: '3.125rem'}" />
+  </ng-container>
+
+</app-content>
+
+<p-dialog
+  [(visible)]="modal"
+  [style]="{ width: '50rem' }"
+  [breakpoints]="{ '1199px': '85vw', '575px': '90vw' }"
+  [header]="headerModal()"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  (onHide)="closeModal()">
+
+  <form [formGroup]="formCalendar">
+    <div class="formgrid grid">
+      <div class="field col-12 md:col-6">
+        <label class="label">Título</label>
+        <input pInputText formControlName="titulo" type="text" id="name" class="w-full" />
+      </div>
+
+      <div class="field col-12 md:col-6">
+        <label class="label">Link imagem</label>
+        <input pInputText formControlName="linkImagem" type="text" id="linkImagem" class="w-full" />
+        <app-image-size />
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="label">Descrição</label>
+      <textarea
+        rows="3"
+        pInputTextarea
+        formControlName="descricao">
+      </textarea>
+    </div>
+
+    <div class="formgrid grid">
+      <div class="field col-12 md:col-6">
+        <label class="label">Data</label>
+        <div>
+          <p-calendar
+            formControlName="data"
+            id="data"
+            [showButtonBar]="true"
+            class="w-full"
+            appendTo="body" />
+        </div>
+      </div>
+
+      <div class="field col-12 md:col-6">
+        <label class="label">Categoria</label>
+        <div>
+          <p-dropdown
+            [options]="categorias()"
+            formControlName="categoriaId"
+            optionLabel="nome"
+            selectedItemsLabel="{0} itens selecionados"
+            emptyFilterMessage="Nenhum resultado encontrado"
+            emptyMessage="Nenhum resultado encontrado"
+            optionValue="id"
+            [filter]="true"
+            filterBy="nome"
+            appendTo="body"
+            [showClear]="true">
+            <ng-template pTemplate="selectedItem" let-selectedOption>
+              <div class="flex align-items-center gap-2">
+                <div>{{ selectedOption.nome }}</div>
+              </div>
+            </ng-template>
+          </p-dropdown>
+        </div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="label">Hashtags</label>
+      <div>
+        <p-chips formControlName="hashtags" [addOnTab]="true" [showClear]="true" max="10" />
+      </div>
+    </div>
+
+    <div class="flex justify-content-end gap-4 mt-5">
+      <p-button
+        label="Cancelar"
+        icon="pi pi-times"
+        severity="secondary"
+        size="small"
+        [text]="true"
+        (onClick)="modal = false" />
+
+      <p-button
+        *ngIf="isBtnAdd()"
+        type="submit"
+        label="Adicionar"
+        size="small"
+        icon="pi pi-check"
+        [loading]="isBtnAddLoading()"
+        [disabled]="!formCalendar.valid"
+        (onClick)="addEvent()" />
+
+      <p-button
+        *ngIf="!isBtnAdd()"
+        type="submit"
+        label="Salvar"
+        size="small"
+        icon="pi pi-check"
+        [loading]="isBtnAddLoading()"
+        [disabled]="!formCalendar.valid"
+        (onClick)="updateEvent()" />
+    </div>
+  </form>
+</p-dialog>

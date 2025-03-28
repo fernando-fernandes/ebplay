@@ -1,0 +1,37 @@
+@use 'sass:map';
+
+$breakpoints: (
+  sm: 576px,
+  md: 768px,
+  lg: 992px,
+  xl: 1200px,
+  xxl: 1400px,
+);
+
+@mixin media-up($key) {
+  @if map.has-key($breakpoints, $key) {
+    $size: map.get($breakpoints, $key);
+
+    @media (min-width: $size) {
+      @content;
+    }
+  } @else {
+    @media (min-width: #{$key}px) {
+      @content;
+    }
+  }
+}
+
+@mixin media-down($key) {
+  @if map.has-key($breakpoints, $key) {
+    $size: map.get($breakpoints, $key);
+
+    @media (max-width: #{($size)-1}) {
+      @content;
+    }
+  } @else {
+    @media (max-width: #{($key)-1}px) {
+      @content;
+    }
+  }
+}

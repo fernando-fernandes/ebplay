@@ -1,0 +1,30 @@
+@import '../../../utils/variables';
+@import '../../../utils/media-queries';
+
+:host {
+  margin: 0 $side-space 5rem;
+  display: block;
+
+  @include media-down(lg) {
+    margin: 0 1rem 3rem;
+  }
+}
+
+.background {
+  background: #fff;
+  box-shadow: rgba(10 10 10 / 0.3) 0 0 25px -16px;
+  border-radius: 0.4rem;
+  padding: 0.7rem;
+
+  &.narrow {
+    padding: 1rem;
+  }
+
+  @include media-up(lg) {
+    padding: 2rem;
+
+    &.narrow {
+      padding: 3rem 4rem;
+    }
+  }
+}

@@ -1,0 +1,171 @@
+<p-toast [life]="4000" />
+<p-confirmDialog />
+
+<app-page-title
+  name="Gestão de categorias"
+  buttonLabel="Nova categoria"
+  [button]="true"
+  (btnClick)="openAddModal()">
+</app-page-title>
+
+<app-content>
+
+  <ng-container *ngIf="!isLoading()">
+
+    @if (categories().length > 0) {
+    <div class="grid mb-4 align-items-end">
+      <div class="col-12 md:col-6 lg:col-3 flex-column flex">
+        <label class="label">Pesquisar</label>
+
+        <p-iconField iconPosition="left">
+          <p-inputIcon>
+            <i class="pi pi-search"></i>
+          </p-inputIcon>
+          <input type="text" pInputText [(ngModel)]="search" (input)="dt.filterGlobal($any($event.target).value, 'contains')" />
+        </p-iconField>
+      </div>
+    </div>
+
+    <div class="grid mb-4">
+
+      <div class="col-12 md:col-6">
+        <p-button
+          label="Excluir itens selecionados"
+          [text]="true"
+          severity="danger"
+          size="small"
+          icon="pi pi-trash"
+          [disabled]="!selectedCategories || !selectedCategories.length"
+          (onClick)="deleteSelectedCategories($event, selectedCategories)" />
+      </div>
+
+      <div class="col-12 md:col-6">
+        <app-export-table [data]="exportData()" [fileName]="exportFileName()" [cols]="exportCols()" />
+      </div>
+    </div>
+
+    <p-table
+      #dt
+      [(selection)]="selectedCategories"
+      [value]="categories()"
+      [tableStyle]="{ 'min-width': '800px' }"
+      [rowsPerPageOptions]="[10, 30, 50]"
+      [paginator]="true"
+      [rows]="10"
+      [rowHover]="true"
+      dataKey="id"
+      [showCurrentPageReport]="true"
+      [globalFilterFields]="['nome']"
+      currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} categorias">
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 64px"><p-tableHeaderCheckbox /></th>
+          <th>Nome</th>
+          <th>Tipo da categoria</th>
+          <th class="text-center">Ações</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-category>
+        <tr>
+          <td class="align-content-center">
+            <p-tableCheckbox [value]="category" />
+          </td>
+          <td class="align-content-center">{{ category.nome }}</td>
+          <td class="align-content-center">{{ category.tipoCategoria !== 0 ? category.tipoCategoria : '-' }}</td>
+          <td class="align-content-start">
+            <div class="flex align-items-center justify-content-center gap-2">
+              <button
+                pButton
+                pRipple
+                type="button"
+                icon="pi pi-pencil"
+                size="small"
+                class="p-button-rounded p-button-text"
+                (click)="openUpdateModal($event, category)"></button>
+              <button
+                pButton
+                pRipple
+                type="button"
+                severity="danger"
+                icon="pi pi-trash"
+                size="small"
+                class="p-button-rounded p-button-text"
+                (click)="deleteCategory($event, category)"></button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="3">A pesquisa com o termo "{{search()}}" não encontrou nenhum resultado.</td>
+        </tr>
+      </ng-template>
+    </p-table>
+    } @else {
+    <p class="noItems">Nenhum item encontrado.</p>
+    }
+  </ng-container>
+
+  <ng-container *ngIf="isLoading()">
+    <ngx-skeleton-loader [theme]="{width: '15rem', height: '40px'}" />
+    <ngx-skeleton-loader count="6" [theme]="{width: '100%', height: '50px'}" />
+  </ng-container>
+
+</app-content>
+
+<p-dialog
+  [(visible)]="modal"
+  [style]="{ width: '800px' }"
+  [breakpoints]="{ '74.9375rem': '75vw', '35.9375rem': '90vw' }"
+  [header]="headerModal()"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  (onHide)="closeModal()">
+
+  <form [formGroup]="formCategory">
+
+    <div class="field ">
+      <label class="label">Nome</label>
+      <input pInputText maxlength="30" formControlName="nome" type="text" id="nome" class="w-full" />
+    </div>
+
+    <div class="field">
+      <label class="label">Tipo da categoria</label>
+      <p-dropdown
+        formControlName="tipoCategoria"
+        [options]="tipoCategoria"
+        appendTo="body" />
+    </div>
+
+    <div class="flex justify-content-end gap-4 mt-5">
+      <p-button
+        label="Fechar"
+        severity="secondary"
+        size="small"
+        [text]="true"
+        (onClick)="modal = false" />
+
+      <p-button
+        *ngIf="isBtnAdd()"
+        type="submit"
+        label="Adicionar"
+        size="small"
+        icon="pi pi-check"
+        [loading]="isBtnAddLoading()"
+        [disabled]="!formCategory.valid"
+        (onClick)="addCategory()" />
+
+      <p-button
+        *ngIf="!isBtnAdd()"
+        type="submit"
+        label="Salvar"
+        size="small"
+        icon="pi pi-check"
+        [loading]="isBtnAddLoading()"
+        [disabled]="!formCategory.valid"
+        (onClick)="updateCategory()" />
+    </div>
+  </form>
+
+</p-dialog>

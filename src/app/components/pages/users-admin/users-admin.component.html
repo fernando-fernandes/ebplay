@@ -1,0 +1,238 @@
+<p-toast [life]="4000" />
+<p-confirmDialog />
+
+<app-page-title name="Gestão de usuários" buttonLabel="Novo usuário" [button]="true" (btnClick)="openModal()">
+</app-page-title>
+
+<app-content>
+
+  <div class="grid mb-4 align-items-start">
+    <div class="col-12 md:col-4 lg:col-4 flex-column flex">
+      <label class="label">Pesquisar</label>
+
+      <div>
+        <p-iconField iconPosition="left">
+          <p-inputIcon>
+            <i class="pi pi-search"></i>
+          </p-inputIcon>
+          <input type="text" pInputText [(ngModel)]="search" (input)="getUsers()" />
+        </p-iconField>
+      </div>
+    </div>
+
+    <div class="col-12 md:col-8 lg:col-4 flex-column flex">
+      <label class="label">Filtrar por data</label>
+      <p-calendar [(ngModel)]="rangeDates" (onSelect)="getUsers()" (onClear)="getUsers()" selectionMode="range"
+        [readonlyInput]="true" [numberOfMonths]="2" [showClear]="true" [showButtonBar]="true"
+        [hideOnDateTimeSelect]="true" rangeSeparator="à" />
+
+      <div class="flex flex-wrap gap-3 mt-3">
+        @for (date of dateType; track $index){
+        <div class="flex align-items-center">
+          <p-radioButton name="dateType" [value]="date.valor" [inputId]="date.valor" [(ngModel)]="selectedDateType"
+            (onClick)="selectDateType()" />
+          <label [for]="date.valor" class="ml-2">
+            {{ date.tipo }}
+          </label>
+        </div>
+        }
+
+      </div>
+    </div>
+
+    <div class="col-12 md:col-4 lg:col-4">
+      <label class="label" for="">Filtrar por status</label>
+      <div>
+        <p-multiSelect (onChange)="getUsers()" (onClear)="onClearStatus()" [options]="filterStatus"
+          [(ngModel)]="selectedStatus" selectedItemsLabel="{0} itens selecionados"
+          emptyFilterMessage="Nenhum resultado encontrado" emptyMessage="Nenhum resultado encontrado" optionLabel="nome"
+          optionValue="value" [filter]="false" filterBy="nome" appendTo="body" [showClear]="true" />
+      </div>
+    </div>
+  </div>
+
+  <ng-container *ngIf="!isLoading()">
+    @if (users().length > 0) {
+
+    <div class="grid mb-4">
+
+      <div class="col-12 md:col-6">
+        <p-button label="Excluir itens selecionados" [text]="true" severity="danger" size="small" icon="pi pi-trash"
+          [disabled]="!selectedItems || !selectedItems.length" (onClick)="deleteSelectedItems($event, selectedItems)" />
+      </div>
+
+      <div class="col-12 md:col-6">
+        <app-export-table [data]="exportData()" [fileName]="exportFileName()" [cols]="exportCols()" />
+      </div>
+    </div>
+
+    <p-table #dt [(selection)]="selectedItems" [value]="users()" [tableStyle]="{ 'min-width': '50rem' }"
+      [rowsPerPageOptions]="[10, 30, 50]" [paginator]="true" [rows]="10" [rowHover]="true" dataKey="id"
+      [showCurrentPageReport]="true" [globalFilterFields]="['nome', 'email', 'telefone', 'apelido']"
+      currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} usuários">
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 4rem"><p-tableHeaderCheckbox /></th>
+          <th>Nome</th>
+          <th>E-mail</th>
+          <th>Telefone</th>
+          <th>Apelido</th>
+          <th>Perfil</th>
+          <th>Data de criação</th>
+          <th>Vencimento</th>
+          <th>Último login</th>
+          <th>Status</th>
+          <th class="text-center">Ações</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-user>
+        <tr>
+          <td class="align-content-start">
+            <p-tableCheckbox [value]="user" />
+          </td>
+          <td>{{ user.nome }}</td>
+          <td>{{ user.email }}</td>
+          <td>{{ user.telefone }}</td>
+          <td>{{ user.apelido }}</td>
+          <td>{{ user.perfil }}</td>
+          <td>{{ user.dataCriacao }}</td>
+          <td>{{ user.dataVencimento }}</td>
+          <td>{{ user.ultimoLogin }}</td>
+          <td>{{ user.status }}</td>
+          <td class="align-content-start">
+            <div class="flex align-items-center justify-content-center gap-2">
+              <button pButton pRipple size="small" type="button" icon="pi pi-pencil"
+                class="p-button-rounded p-button-text" (click)="openUpdateModal($event, user)"></button>
+              <button pButton pRipple size="small" type="button" severity="danger" icon="pi pi-trash"
+                class="p-button-rounded p-button-text" (click)="deleteUsers($event, user)"></button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="9">
+            A pesquisa com o termo "{{ search() }}" não encontrou nenhum resultado.
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+    } @else {
+    <p class="noItems">Nenhum item encontrado.</p>
+    }
+  </ng-container>
+
+  <ng-container *ngIf="isLoading()">
+    <ngx-skeleton-loader [theme]="{ width: '240px', height: '2.5rem' }" />
+    <ngx-skeleton-loader count="6" [theme]="{ width: '100%', height: '3.125rem' }" />
+  </ng-container>
+</app-content>
+
+<p-dialog [(visible)]="modal" [style]="{ width: '70rem' }" [breakpoints]="{ '1199px': '85vw', '575px': '90vw' }"
+  [header]="headerModal()" [modal]="true" [draggable]="false" [resizable]="false" (onHide)="closeModal()">
+
+  <form [formGroup]="formUser">
+
+    <div class="field">
+      <p>Foto de perfil:</p>
+      <img *ngIf="imagePreview" [src]="imagePreview" alt="Preview da imagem" width="100" height="100" />
+      <i *ngIf="!imagePreview" class="fa-solid fa-user icon previewImage"></i>
+
+      <!-- Input para upload -->
+      <div class=" row">
+        <input type="file" class="row pt-1" #file (change)="onUpload($event)" accept="image/*" />
+        <p-button label="Remover" [text]="true" severity="danger" size="small" [disabled]="!imagePreview"
+          class="remove-button" icon="pi pi-trash" (onClick)="resetFile()" />
+      </div>
+
+      <p *ngIf="formUser.get('imagemPerfil')?.errors?.['fileSize']" class="error-text">
+        O arquivo deve ter no máximo 2MB.
+      </p>
+      <p *ngIf="formUser.get('imagemPerfil')?.errors?.['fileType']" class="error-text">
+        Apenas arquivos JPG, JPEG e PNG são permitidos.
+      </p>
+    </div>
+
+
+    <div class="formgrid grid">
+      <div class="field col-12 md:col-6">
+        <label class="label">Nome</label>
+        <input pInputText formControlName="nome" type="text" class="w-full" />
+      </div>
+
+      <div class="field col-12 md:col-6">
+        <label class="label">E-mail</label>
+        <input pInputText formControlName="email" type="text" class="w-full" />
+      </div>
+    </div>
+
+    <div class="formgrid grid">
+      <div class="field col-12 md:col-6">
+        <label class="label">Telefone</label>
+        <p-inputMask formControlName="telefone" type="text" [unmask]="true" mask="(99) 99999-9999" class="w-full" />
+      </div>
+
+      <div class="field col-12 md:col-6" *ngIf="showPassword()">
+        <label class="label">Senha</label>
+        <p-password formControlName="password" [toggleMask]="true" [feedback]="false" styleClass="w-full" />
+      </div>
+    </div>
+
+    <div class="formgrid grid">
+      <div class="field col-12 md:col-6">
+        <label class="label">Apelido</label>
+        <input pInputText formControlName="apelido" type="text" class="w-full" />
+      </div>
+
+      <div class="field col-12 md:col-6">
+        <label class="label">Perfil</label>
+        <div>
+          <p-dropdown [options]="perfil" formControlName="perfil" optionLabel="label" optionValue="value"
+            [filter]="true" emptyFilterMessage="Nenhum resultado encontrado" emptyMessage="Nenhum resultado encontrado"
+            filterBy="label" appendTo="body" [showClear]="true">
+            <ng-template pTemplate="selectedItem" let-selectedOption>
+              <div class="flex align-items-center gap-2">
+                <div>{{ selectedOption.label }}</div>
+              </div>
+            </ng-template>
+          </p-dropdown>
+        </div>
+      </div>
+    </div>
+
+    <div class="formgrid grid">
+      <div class="field col-12 md:col-6">
+        <label class="label">Data vencimento</label>
+        <div>
+          <p-calendar formControlName="dataVencimento" id="dataVencimento" [showButtonBar]="true" class="w-full"
+            appendTo="body" />
+        </div>
+      </div>
+      <div class="field col-12 md:col-4">
+        <div class="mt-4">
+          <p-checkbox label="Ativo" [binary]="true" trueValue="Ativo" falseValue="Inativo" formControlName="status" />
+        </div>
+      </div>
+    </div>
+
+    <div class="flex justify-content-between gap-4 mt-5">
+      <div *ngIf="isBtnReset()" class="flex flex-shrink-0 flex-column">
+        <p-button label="Esqueci minha senha" severity="primary" size="small" [loading]="isResetLoading()" [text]="true"
+          (onClick)="resetPassword()" />
+
+        <p class="reset-text">{{ resetText() }}</p>
+      </div>
+
+      <div class="flex justify-content-end gap-4 w-full">
+        <p-button label="Cancelar" icon="pi pi-times" severity="secondary" size="small" [text]="true"
+          (onClick)="modal = false" />
+
+        <p-button *ngIf="isBtnAdd()" type="submit" label="Adicionar" size="small" icon="pi pi-check"
+          [loading]="isBtnAddLoading()" [disabled]="!formUser.valid" (onClick)="addUser()" />
+
+        <p-button *ngIf="!isBtnAdd()" type="submit" label="Salvar" size="small" icon="pi pi-check"
+          [loading]="isBtnAddLoading()" [disabled]="!formUser.valid" (onClick)="updateUser()" />
+      </div>
+    </div>
+  </form>
+</p-dialog>

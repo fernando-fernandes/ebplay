@@ -1,0 +1,43 @@
+<app-page-title name="Lives e Imersões" [button]="false" [hasSearchFilter]="true" [hasCategoryFilter]="true"
+  [category]="categorias()" (onSearchFilter)="onSearch($event)" (onCategoryFilter)="onFilterCategory($event)"
+  (onClearCategory)="onClearCategory()" />
+
+<app-content [background]="false">
+  @if (listBanners() != null && listBanners().length > 0) {
+  <div style="margin: 0 auto;">
+    <p-carousel [value]="listBanners()" [numVisible]="1" [numScroll]="1" [circular]="true" [autoplayInterval]="5000"
+      [responsiveOptions]="responsiveOptionsBanners">
+      <ng-template pTemplate="item" let-banner>
+        <div class="border border-surface-200 dark:border-surface-700 rounded m-2 p-2">
+          <div class="mb-2">
+            <div class="relative mx-auto">
+              <a href="{{ banner.linkExterno }}" target="_blank" rel="noopener noreferrer">
+                <img [src]="banner.linkImagem" [alt]="banner.titulo" class="w-full rounded-border banner-carrossel" />
+              </a>
+            </div>
+          </div>
+          <!-- <div class="mb-4 font-medium text-center">{{ banner.titulo }}</div> -->
+        </div>
+      </ng-template>
+    </p-carousel>
+  </div>
+  }
+
+  <ng-container *ngIf="!isLoading()">
+    @if (listClasses().length > 0) {
+    <div class="grid">
+      @for (item of listClasses(); track item.id) {
+      <div class="col-12 md:col-6 lg:col-4 xl:col-3">
+        <app-card [title]="item.titulo | truncate : 40" [image]="item.linkImagem" [date]="item.dataInicio | date"
+          [text]="item.descricao | truncate : 100" (selectedNews)="onSelectNews(item)">
+        </app-card>
+      </div>
+      }
+    </div>
+    } @else {
+    <p class="noItems">Nenhum item encontrado.</p>
+    }
+  </ng-container>
+
+  <app-card-loading *ngIf="isLoading()"></app-card-loading>
+</app-content>

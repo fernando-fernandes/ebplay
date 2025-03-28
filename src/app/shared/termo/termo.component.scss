@@ -1,0 +1,36 @@
+@import '../../../utils/variables';
+@import '../../../utils/media-queries';
+
+:host {
+  background-color: $background;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  position: relative;
+  z-index: 0;
+  overflow: auto;
+}
+
+.container {
+  margin: 2rem 0;
+  width: 60%;
+  height: 100%;
+  min-height: fit-content;
+  padding: 2rem;
+  border: solid 1px #ddd;
+  border-radius: 7px;
+
+  @include media-down(lg) {
+    width: 95%;
+  }
+
+  p,
+  h4 {
+    margin: 0.8rem 0;
+  }
+
+  li {
+    margin-bottom: 0.3rem;
+  }
+}

@@ -1,0 +1,104 @@
+import { Injectable, signal } from '@angular/core'
+
+type Profile = 'administrador' | 'professor' | 'redator' | 'comum'
+
+@Injectable({
+  providedIn: 'root'
+})
+export class UtilsService {
+
+  private userLoggedin = signal<Profile | null>(JSON.parse(localStorage.getItem('user')!).perfil.toLowerCase())
+  private textTermo = signal(`
+    <h2>Termo de Segurança e Privacidade da EB Play</h2>
+
+<h4>1. Introdução</h4>
+
+<p>A EB Play valoriza a privacidade e a segurança dos dados pessoais dos seus usuários. Este Termo de Segurança e Privacidade tem como objetivo esclarecer como coletamos, usamos, armazenamos e protegemos as informações pessoais em conformidade com a Lei Geral de Proteção de Dados (Lei nº 13.709/2018 - "LGPD").</p>
+
+<p>Ao se registrar e utilizar a plataforma EB Play, você concorda expressamente com as práticas descritas neste documento. Recomendamos a leitura atenta para assegurar que compreende nossos procedimentos e políticas relacionadas aos seus dados.</p>
+
+<h4>2. Coleta de Dados Pessoais</h4>
+
+<p>Os dados pessoais coletados durante o processo de registro e uso da plataforma podem incluir, mas não se limitam a:</p>
+
+<ul>
+    <li>Nome completo;</li>
+    <li>CPF;</li>
+    <li>Endereço de e-mail;</li>
+    <li>Telefone;</li>
+    <li>Endereço;</li>
+    <li>Informações profissionais (cargo, empresa, etc.);</li>
+    <li>Dados de pagamento (quando aplicável);</li>
+    <li>Dados de navegação e outras informações coletadas automaticamente durante a sua interação com a plataforma (como endereço IP, localização geográfica, tipo de dispositivo, e comportamento de navegação).</li>
+</ul>
+
+<h4>3. Finalidade do Tratamento dos Dados Pessoais</h4>
+
+<p>A EB Play coleta e utiliza seus dados pessoais para as seguintes finalidades:</p>
+
+<ul>
+<li><strong>Cadastro e acesso à plataforma:</strong> Para criar sua conta, autenticar seu login e permitir acesso aos conteúdos educacionais oferecidos.</li>
+<li><strong>Gestão de cursos e certificações:</strong> Para gerenciar sua participação em cursos, emitir certificados e registrar seu progresso.</li>
+<li><strong>Comunicação:</strong> Para enviar notificações, atualizações sobre cursos, eventos, ofertas de conteúdo exclusivo e materiais pedagógicos.</li>
+<li><strong>Suporte ao usuário:</strong> Para oferecer suporte técnico e pedagógico relacionado ao uso da plataforma.</li>
+<li><strong>Melhorias na plataforma:</strong> Para análise de dados, aprimoramento de funcionalidades, segurança e personalização da experiência do usuário.</li>
+<li><strong>Cumprimento de obrigações legais:</strong> Para atender às exigências da legislação, incluindo a LGPD, e para responder a solicitações legais.</li>
+</ul>
+
+<h4>4. Compartilhamento de Dados Pessoais</h4>
+
+<p>A EB Play poderá compartilhar seus dados pessoais com:</p>
+
+<ul>
+    <li><strong>Prestadores de serviço terceirizados:</strong> Empresas que fornecem serviços à plataforma, como hospedagem de dados, processamento de pagamento, serviços de marketing e suporte técnico. Esses parceiros estão obrigados a tratar seus dados conforme as diretrizes da LGPD.</li>
+    <li><strong>Autoridades governamentais:</strong> Caso seja exigido por lei, regulamento ou processo legal, a EB Play poderá divulgar seus dados pessoais para cumprir com tais obrigações legais.</li>
+</ul>
+
+<p>A EB Play não comercializa seus dados pessoais a terceiros para fins de marketing.</p>
+
+<h4>5. Armazenamento e Segurança dos Dados Pessoais</h4>
+
+<p>Seus dados pessoais são armazenados em servidores seguros, protegidos por tecnologias de criptografia e protocolos de segurança adequados. Implementamos medidas técnicas e organizacionais para garantir a proteção contra acesso não autorizado, alteração, perda ou destruição de dados.<p>
+
+<p>Os dados são mantidos apenas pelo tempo necessário para cumprir as finalidades para as quais foram coletados, salvo obrigações legais que determinem um prazo maior.</p>
+
+<h4>6. Direitos do Titular de Dados</h4>
+
+<p>De acordo com a LGPD, você tem os seguintes direitos em relação aos seus dados pessoais:</p>
+
+<ul>
+    <li><strong>Confirmação de tratamento:</strong> O direito de saber se a EB Play está tratando seus dados.</li>
+    <li><strong>Acesso:</strong> O direito de solicitar acesso aos seus dados pessoais.</li>
+    <li><strong>Correção:</strong> O direito de solicitar a correção de dados incorretos ou desatualizados.</li>
+    <li><strong>Anonimização, bloqueio ou eliminação:</strong> O direito de solicitar a anonimização, bloqueio ou eliminação de dados desnecessários ou tratados em desconformidade com a LGPD.</li>
+    <li><strong>Portabilidade:</strong> O direito de solicitar a transferência dos seus dados para outro fornecedor de serviço ou produto.</li>
+    <li><strong>Revogação de consentimento:</strong> O direito de retirar o consentimento para o tratamento de dados a qualquer momento, sem comprometer a legalidade do tratamento realizado anteriormente.</li>
+</ul>
+
+<p>Para exercer seus direitos, entre em contato através dos nossos canais de atendimento indicados no final deste documento.</p>
+
+<h4>7. Atualizações do Termo de Segurança e Privacidade</h4>
+
+<p>Este Termo pode ser atualizado periodicamente para refletir alterações nos nossos processos ou na legislação vigente. Qualquer alteração será comunicada por meio dos nossos canais de comunicação e exigirá sua concordância para continuar utilizando a plataforma.</p>
+
+<h4>8. Contato</h4>
+
+<p>Caso tenha dúvidas sobre este Termo de Segurança e Privacidade ou deseje exercer seus direitos como titular de dados, entre em contato conosco:</p>
+
+<p><strong>E-mail:</strong> suporte@ebplay.com.br</br>
+<strong>Telefone:</strong> (11) 94881-0633</p>
+
+<p>Ao registrar-se na EB Play, você declara que leu, compreendeu e concorda com os termos aqui expostos, autorizando o tratamento de seus dados pessoais conforme descrito neste documento.</p>
+
+<p><strong>Data de Atualização:</strong> 01/10/2024</p>
+    `)
+
+  permission(perfil: Array<Profile | null>): boolean {
+    return perfil.includes(this.userLoggedin())
+  }
+
+  get termo() {
+    return this.textTermo()
+  }
+
+}

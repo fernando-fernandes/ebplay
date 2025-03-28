@@ -1,0 +1,265 @@
+<p-toast [life]="4000" />
+<p-confirmDialog />
+
+<app-page-title
+  name="Gestão Modelos e Checklists"
+  buttonLabel="Upload de arquivo"
+  buttonIcon="pi pi-upload"
+  [button]="true"
+  (btnClick)="openModal()">
+</app-page-title>
+
+<app-content>
+
+  <div class="grid mb-4 align-items-end">
+    <div class="col-12 md:col-4 lg:col-3 flex-column flex">
+      <label class="label">Pesquisar</label>
+      <div>
+        <input type="text" pInputText [(ngModel)]="search" (input)="getFiles()" />
+      </div>
+    </div>
+
+    <div class="col-12 md:col-6 lg:col-4">
+      <label class="label" for="">Filtrar categoria</label>
+      <div>
+        <p-multiSelect
+          (onChange)="getFiles()"
+          (onClear)="onClearFilter()"
+          [options]="categorias()"
+          selectedItemsLabel="{0} itens selecionados"
+          emptyFilterMessage="Nenhum resultado encontrado"
+          emptyMessage="Nenhum resultado encontrado"
+          [(ngModel)]="selectedCategory"
+          selectedItemsLabel="{0} itens selecionados"
+          optionLabel="nome"
+          optionValue="id"
+          [filter]="true"
+          filterBy="nome"
+          appendTo="body"
+          [showClear]="true" />
+      </div>
+    </div>
+  </div>
+
+  <ng-container *ngIf="!isLoading()">
+
+    @if (files().length > 0) {
+
+    <div class="grid mb-4">
+
+      <div class="col-12 md:col-6">
+        <p-button
+          label="Excluir itens selecionados"
+          [text]="true"
+          severity="danger"
+          size="small"
+          icon="pi pi-trash"
+          [disabled]="!selectedItems || !selectedItems.length"
+          (onClick)="deleteSelectedItems($event, selectedItems)" />
+      </div>
+
+      <div class="col-12 md:col-6">
+        <app-export-table [data]="exportData()" [fileName]="exportFileName()" [cols]="exportCols()" />
+      </div>
+    </div>
+
+    <p-table
+      #dt
+      [(selection)]="selectedItems"
+      [value]="files()"
+      [tableStyle]="{ 'min-width': '50rem' }"
+      [rowsPerPageOptions]="[10, 30, 50]"
+      [paginator]="true"
+      [rows]="10"
+      [rowHover]="true"
+      dataKey="id"
+      [showCurrentPageReport]="true"
+      [globalFilterFields]="['nome']"
+      currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} arquivos">
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 4rem"><p-tableHeaderCheckbox /></th>
+          <th>Nome</th>
+          <th>Data início</th>
+          <th>Data fim</th>
+          <th>Categoria</th>
+          <th>Baixar</th>
+          <th class="text-center">Ações</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-file>
+        <tr>
+          <td>
+            <p-tableCheckbox [value]="file" />
+          </td>
+          <td>{{ file.nome }}</td>
+          <td>{{ file.dataInicio }}</td>
+          <td>{{ file.dataFim }}</td>
+          <td><p-tag styleClass="categoria" severity="info" [value]="file.categoria" /></td>
+          <td>
+            <a
+              [href]="file.arquivoUrl"
+              download
+              pButton
+              pRipple
+              type="button"
+              severity="danger"
+              icon="pi pi-download"
+              class="p-button-rounded p-button-text"></a>
+          </td>
+
+          <td>
+            <div class="flex align-items-center justify-content-center gap-2">
+              <button
+                pButton
+                pRipple
+                size="small"
+                type="button"
+                icon="pi pi-pencil"
+                class="p-button-rounded p-button-text"
+                (click)="openUpdateModal($event, file)"></button>
+              <button
+                pButton
+                pRipple
+                size="small"
+                type="button"
+                severity="danger"
+                icon="pi pi-trash"
+                class="p-button-rounded p-button-text"
+                (click)="deleteFile($event, file)"></button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="9">A pesquisa com o termo "{{search()}}" não encontrou nenhum resultado.</td>
+        </tr>
+      </ng-template>
+    </p-table>
+    } @else {
+    <p class="noItems">Nenhum item encontrado.</p>
+    }
+
+  </ng-container>
+
+  <ng-container *ngIf="isLoading()">
+    <ngx-skeleton-loader [theme]="{width: '240px', height: '2.5rem'}" />
+    <ngx-skeleton-loader count="6" [theme]="{width: '100%', height: '3.125rem'}" />
+  </ng-container>
+
+</app-content>
+
+<p-dialog
+  [(visible)]="modal"
+  [style]="{ width: '70rem' }"
+  [breakpoints]="{ '1199px': '85vw', '575px': '90vw' }"
+  [header]="headerModal()"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  (onHide)="closeModal()">
+
+  <div class="mb-3"><input type="file" #file (change)="onUpload($event)" class="mb-4"></div>
+
+  <form [formGroup]="formFiles">
+
+    <div class="formgrid grid">
+      <div class="field col-12 md:col-6">
+        <label class="label">Nome</label>
+        <input
+          formControlName="nome"
+          type="text"
+          pInputText
+          id="nome"
+          class="w-full" />
+      </div>
+      <div class="field col-12 md:col-6">
+        <label class="label">Categoria</label>
+        <div>
+          <p-dropdown
+            [options]="categorias()"
+            formControlName="categoriaId"
+            optionLabel="nome"
+            optionValue="id"
+            [filter]="true"
+            selectedItemsLabel="{0} itens selecionados"
+            emptyFilterMessage="Nenhum resultado encontrado"
+            emptyMessage="Nenhum resultado encontrado"
+            filterBy="nome"
+            appendTo="body"
+            [showClear]="true">
+            <ng-template pTemplate="selectedItem" let-selectedOption>
+              <div class="flex align-items-center gap-2">
+                <div>{{ selectedOption.nome }}</div>
+              </div>
+            </ng-template>
+          </p-dropdown>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="formgrid grid">
+      <div class="field col-12 md:col-6">
+        <label class="label">Data inicial</label>
+        <div>
+          <p-calendar
+            formControlName="dataInicio"
+            id="dataInicio"
+            [showButtonBar]="true"
+            class="w-full"
+            appendTo="body" />
+        </div>
+      </div>
+      <div class="field col-12 md:col-6">
+        <label class="label">Data final</label>
+        <div>
+          <p-calendar
+            formControlName="dataFim"
+            id="dataFim"
+            [showButtonBar]="true"
+            class="w-full"
+            appendTo="body" />
+        </div>
+      </div>
+
+    </div>
+    <!-- <div class="field">
+      <label class="label">Hashtags</label>
+      <div>
+        <p-chips formControlName="hashtags" [addOnTab]="true" [showClear]="true" max="10" />
+      </div>
+    </div> -->
+
+    <div class="flex justify-content-end gap-4 mt-5">
+      <p-button
+        label="Cancelar"
+        icon="pi pi-times"
+        severity="secondary"
+        size="small"
+        [text]="true"
+        (onClick)="modal = false" />
+
+      <p-button
+        *ngIf="isBtnAdd()"
+        type="submit"
+        label="Adicionar"
+        size="small"
+        icon="pi pi-check"
+        [loading]="isBtnAddLoading()"
+        [disabled]="!formFiles.valid || !selectedFile"
+        (onClick)="addFile()" />
+
+      <p-button
+        *ngIf="!isBtnAdd()"
+        type="submit"
+        label="Salvar"
+        size="small"
+        icon="pi pi-check"
+        [loading]="isBtnAddLoading()"
+        [disabled]="!formFiles.valid"
+        (onClick)="updateFile()" />
+    </div>
+  </form>
+</p-dialog>

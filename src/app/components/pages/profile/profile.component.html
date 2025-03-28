@@ -1,0 +1,145 @@
+<p-toast [life]="4000" />
+
+<div class="user-header">
+  <img *ngIf="user().imagemPerfilURL" class="fa-solid fa-user icon profile-icon" [src]="user().imagemPerfilURL" />
+  <i *ngIf="!user().imagemPerfilURL" class="fa-solid fa-user icon"></i>
+
+  <div class="user" *ngIf="!isLoading()">
+    <div>
+      <h1 class="name">{{ user().nome }}</h1>
+      <p class="email">{{ user().email }}</p>
+    </div>
+    <span class="type">{{ user().perfil }}</span>
+  </div>
+
+  <div>
+    <ngx-skeleton-loader *ngIf="isLoading()" count="1"
+      [theme]="{ 'width': '250px', height: '50px', 'margin-top': '2rem' }" />
+  </div>
+</div>
+
+<app-content>
+
+  <div class="container-user">
+
+    <section class="content">
+      <div class="title">
+        <p>Detalhes</p>
+        <a (click)="openUpdateModal()"><i class="fa-light fa-pen"></i> <span>Editar</span></a>
+      </div>
+
+      <div class="info">
+        <div>
+          <span>Nome</span>
+          <span *ngIf="!isLoading()">{{ firstName()}}</span>
+          <span *ngIf="isLoading()"> <ngx-skeleton-loader count="1"
+              [theme]="{ 'width': '100%', height: '16px', margin: '0' }" /></span>
+        </div>
+
+        <div>
+          <span>Sobrenome</span>
+          <span *ngIf="!isLoading()">{{ lastName() }}</span>
+          <span *ngIf="isLoading()"> <ngx-skeleton-loader count="1"
+              [theme]="{ 'width': '100%', height: '16px', margin: '0' }" /></span>
+        </div>
+
+        <div>
+          <span>Nome de apresentação</span>
+          <span *ngIf="!isLoading()">{{ user().apelido }}</span>
+          <span *ngIf="isLoading()"> <ngx-skeleton-loader count="1"
+              [theme]="{ 'width': '100%', height: '16px', margin: '0' }" /></span>
+        </div>
+
+        <div>
+          <span>Telefone</span>
+          <span *ngIf="!isLoading()">{{ user().telefone }}</span>
+          <span *ngIf="isLoading()"> <ngx-skeleton-loader count="1"
+              [theme]="{ 'width': '100%', height: '16px', margin: '0' }" /></span>
+        </div>
+      </div>
+
+      <div class="linkTermo">
+        <a [routerLink]="['../termo-de-seguranca-e-privacidade']" target="_blank">Termo de Segurança e Privacidade da EB
+          Play</a>
+      </div>
+    </section>
+
+  </div>
+
+</app-content>
+
+
+<p-dialog [(visible)]="modal" [style]="{ width: '50rem' }" [breakpoints]="{ '1199px': '85vw', '575px': '90vw' }"
+  [header]="headerModal()" [modal]="true" [draggable]="false" [resizable]="false" (onHide)="closeModal()">
+
+
+  <form [formGroup]="form">
+
+    <div class="field">
+      <p>Foto de perfil:</p>
+      <img *ngIf="imagePreview" [src]="imagePreview" alt="Preview da imagem" width="100" height="100" />
+      <i *ngIf="!imagePreview" class="fa-solid fa-user icon previewImage"></i>
+
+      <div class=" row">
+        <input type="file" class="row pt-1" #file (change)="onUpload($event)" accept="image/*" />
+        <p-button label="Remover" [text]="true" severity="danger" size="small" [disabled]="!imagePreview"
+          class="remove-button" icon="pi pi-trash" (onClick)="resetFile()" />
+      </div>
+
+
+      <p *ngIf="form.get('imagemPerfil')?.errors?.['fileSize']" class="error-text">
+        O arquivo deve ter no máximo 2MB.
+      </p>
+      <p *ngIf="form.get('imagemPerfil')?.errors?.['fileType']" class="error-text">
+        Apenas arquivos JPG, JPEG e PNG são permitidos.
+      </p>
+    </div>
+
+    <div class="field">
+      <label class="label">Nome</label>
+      <input pInputText formControlName="nome" type="text" class="w-full" />
+    </div>
+
+    <div class="formgrid grid">
+      <div class="field col-12 md:col-6">
+        <label class="label">Apelido</label>
+        <input pInputText formControlName="apelido" type="text" class="w-full" />
+      </div>
+
+      <div class="field col-12 md:col-6">
+        <label class="label">E-mail</label>
+        <input pInputText formControlName="email" type="text" class="w-full" />
+      </div>
+    </div>
+
+    <div class="formgrid grid">
+      <div class="field col-12 md:col-6">
+        <label class="label">Telefone</label>
+        <p-inputMask formControlName="telefone" type="text" [unmask]="true" mask="(99) 99999-9999" class="w-full" />
+      </div>
+
+      <div class="field col-12 md:col-6">
+        <label class="label">Perfil</label>
+        <input pInputText formControlName="perfil" readonly type="text" class="w-full" />
+      </div>
+    </div>
+
+    <div class="flex justify-content-end mt-5">
+
+      <div class="flex gap-4">
+        <p-button label="Cancelar" icon="pi pi-times" severity="secondary" size="small" [text]="true"
+          (onClick)="closeModal()" />
+
+        <p-button type="submit" label="Salvar" size="small" icon="pi pi-check" [loading]="isBtnAddLoading()"
+          [disabled]="!form.valid" (onClick)="updateUser()" />
+      </div>
+    </div>
+  </form>
+</p-dialog>
+
+<p-dialog [(visible)]="modalTermo" [style]="{ width: '50rem' }" [breakpoints]="{ '1199px': '85vw', '575px': '90vw' }"
+  [modal]="true" [draggable]="false" [resizable]="false" [dismissableMask]="true">
+
+  <div class="modalTermo" [innerHTML]="termo"></div>
+
+</p-dialog>

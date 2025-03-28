@@ -1,0 +1,37 @@
+::ng-deep .p-multiselect {
+  width: 100%;
+}
+
+.nao-respondida {
+  text-wrap: nowrap;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background-color: #fbe8d2;
+  padding: 5px 7px;
+  border-radius: 5px;
+  color: #222;
+}
+
+.data {
+  p {
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  span {
+    margin-top: 0.5rem;
+    display: inline-block;
+    font-size: 0.75rem;
+    color: #999;
+  }
+}
+
+.pergunta-reservada {
+  text-wrap: nowrap;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background-color: #f0b64d;
+  padding: 5px 7px;
+  border-radius: 5px;
+  color: #222;
+}

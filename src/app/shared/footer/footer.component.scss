@@ -1,0 +1,26 @@
+@import '../../../utils/variables';
+@import '../../../utils/media-queries';
+
+:host {
+  display: flex;
+  background-color: lighten($banner-background, 2);
+  width: 100%;
+  padding: 2rem $side-space;
+  flex-direction: column;
+  gap: 1rem;
+
+  @include media-down(lg) {
+    padding: 2rem 1rem;
+  }
+}
+
+.direitos {
+  font-size: 0.8rem; /* Diminuir o tamanho da fonte */
+  color: #444;
+  text-align: center; /* Centralizar o texto */
+}
+
+.versao {
+  color: #777;
+  margin: 6px;
+}

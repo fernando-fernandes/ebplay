@@ -1,0 +1,56 @@
+@import "../../../utils/variables";
+
+:host {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: $top-header-height;
+  background-color: $top-header-background;
+  background-color: lighten($color: $primary, $amount: 3);
+  width: 100%;
+  padding: 0 $side-space;
+  flex-shrink: 0;
+}
+
+.logo {
+  height: 2rem;
+}
+
+.user {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  cursor: pointer;
+  padding: 0.6rem 1rem;
+  border-radius: 0.4rem;
+
+  &:hover {
+    background: lighten($primary, 7);
+  }
+
+  .icon {
+    font-size: 0.8rem;
+    color: #898989;
+    color: #fff;
+  }
+
+  .text {
+    font-size: 0.9rem;
+    color: #898989;
+    color: #fff;
+  }
+}
+
+::ng-deep .p-menuitem-icon {
+  margin-right: 1rem;
+}
+
+.user-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.notification {
+  cursor: pointer;
+}

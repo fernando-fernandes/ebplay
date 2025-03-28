@@ -1,0 +1,120 @@
+@import '../../../utils/variables';
+
+@mixin hover($bgColor, $textColor: #fff) {
+  background-color: darken($bgColor, $amount: 2);
+  color: $textColor;
+}
+
+.navMenu {
+  background-color: $primary;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 18rem;
+  transition: all 120ms ease-in;
+
+  &.isCollapsed {
+    width: 3.3rem;
+  }
+
+  // &:hover {
+  //   width: 13rem;
+  // }
+
+  nav {
+    margin-top: 0.8rem;
+    display: flex;
+    flex-wrap: nowrap;
+    flex-direction: column;
+  }
+}
+
+a {
+  position: relative;
+  padding: 0.8rem 1rem;
+  // padding: 0 0.7rem 0 1rem;
+  text-decoration: none;
+  color: $nav-color;
+  font-weight: 500;
+  font-size: 0.85rem;
+  // overflow-x: hidden;
+  text-wrap: nowrap;
+  // display: flex;
+  // align-items: center;
+  // height: 2.5rem;
+
+  &:hover {
+    @include hover($primary, $secondary);
+
+    .tooltip {
+      display: flex;
+      color: $nav-color;
+    }
+  }
+
+  &:active {
+    background-color: darken($color: $primary, $amount: 3);
+  }
+
+  .text {
+    margin-left: 1rem;
+  }
+
+  .icon {
+    font-size: $nav-icon-size;
+    width: 1.3rem;
+    text-align: center;
+  }
+
+  .tooltip {
+    position: absolute;
+    background-color: transparent;
+    top: 0;
+    left: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    z-index: 1;
+    display: none;
+    border-left: solid 3px transparent;
+    box-sizing: border-box;
+
+    span {
+      background-color: $primary;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      padding: 0 1rem;
+      border-radius: 4px;
+      font-weight: 300;
+
+      // &:hover {
+      //   color: $secondary;
+      // }
+    }
+  }
+}
+
+.active {
+  @include hover($primary, $secondary);
+}
+
+.toggleNavMenu {
+  height: $top-header-height;
+  color: $nav-color;
+  border: none;
+  background-color: $primary;
+  cursor: pointer;
+  // overflow-x: hidden;
+  text-wrap: nowrap;
+  padding: 1rem;
+  text-align: left;
+
+  &:hover {
+    @include hover($primary, $secondary);
+  }
+
+  &:active {
+    background-color: darken($color: $primary, $amount: 3);
+  }
+}

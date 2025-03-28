@@ -1,0 +1,12 @@
+<app-page-title name="Links Úteis"> </app-page-title>
+
+<app-content>
+  <div class="useful-links">
+    <div *ngFor="let link of links" class="link-button">
+      <button (click)="openLink(link.url)">
+        <i [class]="link.icon"></i>
+        <span>{{ link.name }}</span>
+      </button>
+    </div>
+  </div>
+</app-content>

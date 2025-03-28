@@ -1,0 +1,97 @@
+<app-page-title
+  name="Modelos e Checklists">
+</app-page-title>
+
+<app-content>
+
+  <div class="grid mb-4 align-items-end">
+    <div class="col-12 md:col-4 lg:col-3 flex-column flex">
+      <label class="label">Pesquisar</label>
+      <div>
+        <input type="text" pInputText [(ngModel)]="search" (input)="getFiles()" />
+      </div>
+    </div>
+
+    <div class="col-12 md:col-6 lg:col-4">
+      <label class="label" for="">Filtrar categoria</label>
+      <div>
+
+        <p-multiSelect
+          (onChange)="getFiles()"
+          (onClear)="onClearFilter()"
+          [options]="categorias()"
+          selectedItemsLabel="{0} itens selecionados"
+          emptyFilterMessage="Nenhum resultado encontrado"
+          emptyMessage="Nenhum resultado encontrado"
+          [(ngModel)]="selectedCategory"
+          selectedItemsLabel="{0} itens selecionados"
+          optionLabel="nome"
+          optionValue="id"
+          [filter]="true"
+          filterBy="nome"
+          appendTo="body"
+          [showClear]="true" />
+      </div>
+    </div>
+  </div>
+
+  <ng-container *ngIf="!isLoading()">
+
+    @if (files().length > 0) {
+
+    <p-table
+      [value]="files()"
+      [tableStyle]="{ 'min-width': '50rem' }"
+      [rowsPerPageOptions]="[10, 30, 50]"
+      [paginator]="true"
+      [rows]="10"
+      [rowHover]="true"
+      dataKey="id"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} arquivos">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Nome</th>
+          <th>Data início</th>
+          <th>Data fim</th>
+          <th>Categoria</th>
+          <th>Baixar</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-file>
+        <tr>
+          <td>{{ file.nome }}</td>
+          <td>{{ file.dataInicio }}</td>
+          <td>{{ file.dataFim }}</td>
+          <td><p-tag styleClass="categoria" severity="info" [value]="file.categoria" /></td>
+          <td>
+            <a
+              [href]="file.arquivoUrl"
+              download
+              pButton
+              pRipple
+              type="button"
+              severity="danger"
+              icon="pi pi-download"
+              class="p-button-rounded p-button-text"></a>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="9">A pesquisa com o termo "{{search()}}" não encontrou nenhum resultado.</td>
+        </tr>
+      </ng-template>
+    </p-table>
+    } @else {
+    <p class="noItems">Nenhum item encontrado.</p>
+    }
+
+  </ng-container>
+
+  <ng-container *ngIf="isLoading()">
+    <ngx-skeleton-loader [theme]="{width: '240px', height: '2.5rem'}" />
+    <ngx-skeleton-loader count="6" [theme]="{width: '100%', height: '3.125rem'}" />
+  </ng-container>
+
+</app-content>

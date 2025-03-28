@@ -1,0 +1,14 @@
+@import '../../../../utils/variables';
+
+.container-destaques {
+  background-color: #fff;
+  padding: 2rem;
+  border-radius: $radius;
+  box-shadow: $shadow;
+  margin-bottom: 2rem;
+}
+
+.banner-carrossel {
+  max-height: 300px;
+  max-width: 1200px;
+}

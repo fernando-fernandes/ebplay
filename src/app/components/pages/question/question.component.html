@@ -1,0 +1,120 @@
+<p-toast [life]="4000" />
+<p-confirmDialog />
+
+<app-page-title name="Pergunta" [backButton]="true"></app-page-title>
+
+<app-content [narrow]="true">
+
+  <div *ngIf="!question().usuarioPodeResponder" class="info-horario">
+    <p>
+      Esta pergunta está sendo respondida por outro professor.
+    </p>
+    <strong>Dentro de alguns minutos ela estará disponível para ser respondida novamente </strong>
+  </div>
+
+  <div class="container">
+    <section class="main-column">
+      <ng-container *ngIf="!questionsLoading()">
+        <article>
+          <img *ngIf="question().imagemPerfilURLCriador" class=" fa-solid fa-user icon profile-icon-quest"
+            [src]="question().imagemPerfilURLCriador" />
+          <i *ngIf="!question().imagemPerfilURLCriador" class="fa-solid fa-user icon-quest profile-icon"></i>
+          <div class="question">
+            <p class="time" title="{{question().dataCriacao}}"> {{ question().dataCriacaoFormatada }} - {{
+              question().criador }} </p>
+            <p class="enunciado">{{ question().enunciado }}</p>
+            <p class="category" *ngIf="question().categoria">{{question().categoria}}</p>
+          </div>
+        </article>
+      </ng-container>
+
+      <ng-container *ngIf="questionsLoading()">
+        <ngx-skeleton-loader count="1" [theme]="{ width: '100%', height: '8rem' }" />
+      </ng-container>
+
+      <ng-container *ngIf="!answersLoading()">
+        <h4 class="answer-section-title">RESPOSTAS</h4>
+
+        @for (answer of answers(); track $index) {
+        <div class="answer-box">
+          <div class="icon">
+            <img *ngIf="answer.imagemPerfilURLCriador" class="fa-solid fa-user profile-icon"
+              [src]="answer.imagemPerfilURLCriador" />
+            <i *ngIf="!answer.imagemPerfilURLCriador" class="fa-solid fa-user"></i>
+          </div>
+          <div class="answer">
+            <h6>
+              @if (answer.criador) {
+              {{ answer.criador }}
+              } @else { Usuário desconhecido }
+            </h6>
+            <span title="{{answer.dataCriacao}}">{{ answer.dataCriacaoFormatada }}</span>
+            <!-- Botão de excluir -->
+            <button *ngIf="answer.criadorId == user().id" pButton icon="pi pi-trash"
+              class="p-button-text p-button-danger delete-btn" (click)="confirmDelete(answer)"></button>
+            <p>{{ answer.texto }}</p>
+          </div>
+
+        </div>
+        } @empty {
+        <p class="no-answers">Ainda não há respostas.</p>
+        }
+
+        <div class="flex justify-content-end">
+          <button pButton pRipple label="Nova resposta" size="small" class="p-button-primary btn" icon="pi pi-plus"
+            (click)="openModal()" [disabled]="!question().usuarioPodeResponder"></button>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="answersLoading()">
+        <ngx-skeleton-loader count="1" [theme]="{ width: '10rem', height: '2rem' }" />
+        <ngx-skeleton-loader count="3" [theme]="{ width: '100%', height: '4rem' }" />
+      </ng-container>
+    </section>
+
+    <section class="side-column">
+      <ng-container *ngIf="!newsLoading()">
+        @if (news().length) {
+        <app-last-news [news]="news()" *ngIf="!newsLoading()" />
+        } @else {
+        <p class="news-empty">Ainda não há notícias cadastradas.</p>
+        }
+      </ng-container>
+
+      <ngx-skeleton-loader *ngIf="newsLoading()" count="3" [theme]="{ width: '100%', height: '5rem' }" />
+    </section>
+  </div>
+</app-content>
+
+<p-dialog [(visible)]="modal" [style]="{ width: '70rem' }" [breakpoints]="{ '1199px': '85vw', '575px': '90vw' }"
+  [header]="headerModal()" [modal]="true" [draggable]="false" [resizable]="false" (onHide)="closeModal()">
+  <form [formGroup]="formAnswer">
+    <div class="field">
+      <label class="label">Resposta</label>
+      <textarea rows="5" pInputTextarea class="w-full" formControlName="texto">
+      </textarea>
+    </div>
+
+    <div class="field">
+      <p-checkbox label="Destaque" [binary]="true" inputId="binary" formControlName="destaque" />
+    </div>
+
+    <div class="flex justify-content-end gap-4 mt-5">
+      <p-button label="Cancelar" icon="pi pi-times" severity="secondary" size="small" [text]="true"
+        (onClick)="modal = false" />
+
+      <p-button *ngIf="isBtnAdd()" type="submit" label="Adicionar" size="small" icon="pi pi-check"
+        [loading]="isBtnAddLoading()" [disabled]="!formAnswer.valid" (onClick)="addAnswers()" />
+
+      <!-- <p-button
+        *ngIf="!isBtnAdd()"
+        type="submit"
+        label="Salvar"
+        size="small"
+        icon="pi pi-check"
+        [loading]="isBtnAddLoading()"
+        [disabled]="!formQuestion.valid"
+        (onClick)="updateQuestion()" /> -->
+    </div>
+  </form>
+</p-dialog>

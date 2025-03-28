@@ -1,0 +1,52 @@
+<div class="grid w-full align-items-center">
+
+  <div class="col-12 sm:col-6 flex align-items-center gap-4">
+    <app-back-button *ngIf="backButton()" />
+    <span>{{ name() }}</span>
+  </div>
+
+  @if(hasSearchFilter()) {
+  <div class="col-12 align-content-end" [ngClass]="{ 'md:col-3': hasCategoryFilter() }">
+    <p-iconField iconPosition="left">
+      <p-inputIcon styleClass="pi pi-search" />
+      <input type="text" pInputText placeholder="Pesquisar" (input)="search($event)" />
+    </p-iconField>
+  </div>
+  }
+
+  @if(hasCategoryFilter()){
+  <div class="col-12 md:col-3 align-content-end">
+    <!-- <label class="label" for="">Filtrar categoria</label> -->
+    <div>
+      <p-multiSelect
+        [options]="category()"
+        [filter]="true"
+        [showClear]="true"
+        (onChange)="filterCategory($event)"
+        (onClear)="clearCategory()"
+        selectedItemsLabel="{0} itens selecionados"
+        emptyFilterMessage="Nenhum resultado encontrado"
+        emptyMessage="Nenhum resultado encontrado"
+        optionLabel="nome"
+        placeholder="Filtrar categoria"
+        optionValue="id"
+        filterBy="nome"
+        appendTo="body" />
+    </div>
+  </div>
+  }
+
+  @if (button()) {
+  <div class="col-12 md:col-6 justify-content-end align-content-end flex">
+    <button
+      pButton
+      pRipple
+      [label]="buttonLabel()"
+      [disabled]="buttonDisabled()"
+      size="small"
+      class="p-button-primary btn"
+      [icon]="buttonIcon()"
+      (click)="buttonClick()"></button>
+  </div>
+  }
+</div>

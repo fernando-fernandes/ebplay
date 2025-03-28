@@ -1,0 +1,142 @@
+@import '../../../../utils/variables';
+@import '../../../../utils/media-queries';
+
+.p-inputtext,
+::ng-deep .p-calendar,
+::ng-deep .p-multiselect {
+  width: 100%;
+}
+
+// .view {
+//   .view-title {
+//     font-size: 1.125rem;
+//     font-weight: 500;
+//   }
+// }
+
+::ng-deep .fc-event {
+  cursor: pointer;
+}
+
+::ng-deep .p-dialog-content {
+  padding: 0;
+  border-radius: 6px 6px;
+}
+
+.banner {
+  height: 10rem;
+  align-content: flex-end;
+  position: relative;
+  background-size: cover;
+  background-position: center center;
+  padding: 1rem 2rem;
+  overflow: hidden;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 80%;
+    z-index: 0;
+    background-color: rgba(#000, 0.3);
+    background: linear-gradient(0deg, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0) 100%);
+  }
+
+  .title {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+    margin-bottom: 00;
+    z-index: 1;
+  }
+
+  h1 {
+    color: rgba(#fff, 0.7);
+    font-size: 1.4rem;
+    font-weight: 700;
+  }
+
+  .categoria {
+    margin-top: 0.7rem;
+    background-color: #e5e5e5;
+    font-size: 0.75rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 0.3rem;
+    color: #555;
+    display: inline;
+  }
+
+  @include media-down(lg) {
+    height: 10rem;
+
+    h1 {
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+    }
+  }
+}
+
+.conteudo {
+  padding: 2rem;
+
+  .box-titulo {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  h2 {
+    color: #222;
+    font-size: 1.1rem;
+    font-weight: 600;
+    width: 70%;
+    margin-bottom: 1.3rem;
+  }
+
+  .hashtags {
+    display: flex;
+    gap: 0.6rem;
+    font-size: 0.7rem;
+  }
+
+  .descricao {
+    font-size: 0.95rem;
+  }
+
+  @include media-down(sm) {
+    h2 {
+      margin-bottom: 0;
+      margin-bottom: 0.5rem;
+    }
+
+    .box-titulo {
+      flex-direction: column;
+      margin-bottom: 1rem;
+    }
+  }
+}
+
+.close {
+  position: absolute;
+  right: 1rem;
+  top: 1rem;
+  z-index: 1;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: none;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 15rem;
+  color: #fff;
+  cursor: pointer;
+
+  &:focus {
+    outline: none;
+  }
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.8);
+  }
+}

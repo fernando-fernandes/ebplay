@@ -1,0 +1,79 @@
+<app-page-title
+  name="Cursos"
+  [button]="false"
+  [hasSearchFilter]="false"
+  [hasCategoryFilter]="false"
+  [category]="categorias()"
+  (onSearchFilter)="onSearch($event)"
+  (onCategoryFilter)="onFilterCategory($event)"
+  (onClearCategory)="onClearCategory()" />
+
+<app-content [background]="false">
+  <ng-container *ngIf="!isLoading()">
+    @if (listCourses().length > 0) {
+    <div class="container-destaques">
+      @if (highlights().length > 0) {
+      <p-carousel
+        [value]="highlights()"
+        [numVisible]="3"
+        [numScroll]="1"
+        [circular]="true"
+        [autoplayInterval]="5000"
+        [showIndicators]="false"
+        [responsiveOptions]="responsiveOptions">
+        <ng-template let-highlight pTemplate="item">
+          <div class="border-1 border-0 border-round m-2 p-3">
+            <app-card
+              [title]="highlight.titulo | truncate : 40"
+              [image]="highlight.linkImagem"
+              [date]="highlight.dataInicio | date"
+              [text]="highlight.descricao | truncate : 100"
+              (selectedNews)="onSelectCourse(highlight)">
+            </app-card>
+          </div>
+        </ng-template>
+      </p-carousel>
+      }
+    </div>
+
+
+    <div class="grid">
+      @for (categoria of coursesByCategory() | keyvalue; track $index) {
+
+      <div class="col-12 mt-4">
+        <h3 class="categoria">{{categoria.key}}</h3>
+      </div>
+
+      @for (item of categoria.value ; track $index) {
+
+      <div class="col-12 sm:col-6 md:col-4 lg:col-3 xl:col-3">
+        <app-card
+          [title]="item.titulo | truncate : 40"
+          [image]="item.linkImagem"
+          [date]="item.dataInicio | date"
+          [text]="item.descricao | truncate : 100"
+          (selectedNews)="onSelectCourse(item)">
+        </app-card>
+      </div>
+      }
+      }
+    </div>
+    } @else {
+    <p class="noItems">Nenhum item encontrado.</p>
+    }
+  </ng-container>
+
+  <ngx-skeleton-loader
+    *ngIf="isLoading()"
+    [count]="1"
+    [theme]="{ width: '100%', height: '260px', 'border-radius': '.6rem' }" />
+
+  <app-card-loading *ngIf="isLoading()"></app-card-loading>
+
+  <!-- <p-paginator
+    (onPageChange)="onPageChange($event)"
+    [first]="first"
+    [rows]="rows"
+    [totalRecords]="listCourses().length"
+    [rowsPerPageOptions]="[20, 30, 50]" /> -->
+</app-content>

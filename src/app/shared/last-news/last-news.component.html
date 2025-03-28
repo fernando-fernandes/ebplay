@@ -1,0 +1,14 @@
+<h1>Últimas notícias</h1>
+<ul>
+  @for (item of news(); track $index) {
+  <hr>
+  <li>
+    <a [routerLink]="['../news', item.id]">
+      <div
+        class="img"
+        [ngStyle]="{ 'background-image': 'url(' + item.linkImagem + ')' }"></div>
+      <span>{{ item.titulo | truncate : 35 }}</span>
+    </a>
+  </li>
+  }
+</ul>

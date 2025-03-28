@@ -1,0 +1,30 @@
+<img class="logo" src="assets/images/logotipo.png" alt="EB Play">
+
+<p-menu #menu [model]="lista" [popup]="true" appendTo="body">
+  <ng-template pTemplate="item" let-item>
+    <ng-container *ngIf="item.route; else elseBlock">
+      <a [routerLink]="item.route" class="p-menuitem-link">
+        <span [class]="item.icon"></span>
+        <span class="ml-2">{{ item.label }}</span>
+      </a>
+    </ng-container>
+    <ng-template #elseBlock>
+      <a [href]="item.url" class="p-menuitem-link">
+        <span [class]="item.icon"></span>
+        <span class="ml-2">{{ item.label }}</span>
+      </a>
+    </ng-template>
+  </ng-template>
+</p-menu>
+
+<app-terms-popup></app-terms-popup>
+<div class="user-container">
+  <div class="notification">
+    <app-notification></app-notification>
+  </div>
+
+  <div class="user" (click)="menu.toggle($event)">
+    <span class="text">{{user()}}</span>
+    <i class="fa-solid fa-caret-down icon"></i>
+  </div>
+</div>

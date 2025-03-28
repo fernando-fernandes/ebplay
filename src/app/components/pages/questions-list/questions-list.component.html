@@ -1,0 +1,231 @@
+<p-toast [life]="4000" />
+<p-confirmDialog />
+
+<app-page-title
+  name="Comunidade Tira-dúvidas"
+  (btnClick)="openModal()"
+  [button]="true"
+  [buttonDisabled]="isNewQuestionDisabled()"
+  buttonLabel="Nova pergunta"
+  buttonIcon="pi pi-plus"
+>
+</app-page-title>
+
+<app-content [narrow]="true">
+  <!-- <ng-container *ngIf="!questionsLoading()"> -->
+
+  <div class="info-horario">
+    <p>
+      A Comunidade Tira-Dúvidas funciona de segunda à sexta-feira, das 9h às
+      19h, exceto em feriados.
+    </p>
+    <strong
+      >O tempo médio de resposta é de até 30 minutos, podendo variar em casos
+      excepcionais.</strong
+    >
+  </div>
+
+  <div class="grid align-items-end">
+    <div class="col-12 md:col-6 lg:col-3 flex-column flex">
+      <label class="label" for="">Pesquisar</label>
+      <input
+        type="text"
+        pInputText
+        [(ngModel)]="search"
+        (input)="getQuestions()"
+      />
+    </div>
+
+    <div class="col-12 md:col-6 lg:col-5">
+      <label class="label" for="">Filtrar por:</label>
+      <div>
+        <p-dropdown
+          (onChange)="getQuestions()"
+          [options]="filter"
+          [(ngModel)]="selectedFilter"
+          optionLabel="nome"
+          optionValue="value"
+          appendTo="body"
+          [showClear]="true"
+        />
+      </div>
+    </div>
+
+    <div class="col-12 md:col-6 lg:col-4">
+      <label class="label" for="">Filtrar categoria</label>
+      <div>
+        <p-multiSelect
+          (onChange)="getQuestions()"
+          (onClear)="onClearCategoria()"
+          [options]="categorias()"
+          [(ngModel)]="selectedCategory"
+          selectedItemsLabel="{0} itens selecionados"
+          emptyFilterMessage="Nenhum resultado encontrado"
+          emptyMessage="Nenhum resultado encontrado"
+          optionLabel="nome"
+          optionValue="id"
+          [filter]="true"
+          filterBy="nome"
+          appendTo="body"
+          [showClear]="true"
+        />
+      </div>
+    </div>
+  </div>
+  <!-- </ng-container> -->
+
+  <!-- <ng-container *ngIf="questionsLoading()">
+    <ngx-skeleton-loader count="1" [theme]="{width: '40%', height: '3rem'}" />
+  </ng-container> -->
+
+  <div class="container">
+    <section class="main-column">
+      <ng-container *ngIf="!questionsLoading()">
+        @if (questions().length) { @for (question of questions(); track $index)
+        {
+        <article [routerLink]="['../question', question.id]">
+          <div class="info">
+            <span class="status" [ngClass]="{ hasBook: question.reservadaPara, hasAnswer: question.respostas.length }">
+              {{ question.reservadaPara ? (question.reservadaPara + " respondendo...") : question.respostas.length ?
+              "Respondida" : "Não respondida"
+              }}
+            </span>
+            <img
+              *ngIf="question.imagemPerfilURLCriador"
+              class="fa-solid fa-user icon profile-icon"
+              [src]="question.imagemPerfilURLCriador"
+            />
+            <i
+              *ngIf="!question.imagemPerfilURLCriador"
+              class="fa-solid fa-user icon profile-icon"
+            ></i>
+
+            <!-- <span class="timeStatus" [ngClass]="{'hasAnswer': question.hasAnswer}">{{question.timeAnswer}}</span> -->
+          </div>
+
+          <div class="question">
+            <div class="time" title="{{question.dataCriacao}}">{{ question.dataCriacaoFormatada }} - {{ question.criador }}</div>
+
+            <p>{{ question.enunciado }}</p>
+
+            <div class="context">
+              <span *ngIf="question.categoria" class="category">{{
+                question.categoria
+              }}</span>
+            </div>
+          </div>
+        </article>
+
+        } } @else {
+        <p class="noItems">Nenhum item encontrado.</p>
+        }
+      </ng-container>
+
+      <ng-container *ngIf="questionsLoading()">
+        <ngx-skeleton-loader
+          count="2"
+          [theme]="{ width: '100%', height: '9rem' }"
+        />
+      </ng-container>
+    </section>
+
+    <section class="side-column">
+      <ng-container *ngIf="!newsLoading()">
+        @if (news().length) {
+        <app-last-news [news]="news()" *ngIf="!newsLoading()" />
+        } @else {
+        <p class="news-empty">Ainda não há notícias cadastradas.</p>
+        }
+      </ng-container>
+
+      <ngx-skeleton-loader
+        *ngIf="newsLoading()"
+        count="3"
+        [theme]="{ width: '100%', height: '5rem' }"
+      />
+    </section>
+  </div>
+</app-content>
+
+<p-dialog
+  [(visible)]="modal"
+  [style]="{ width: '70rem' }"
+  [breakpoints]="{ '1199px': '85vw', '575px': '90vw' }"
+  [header]="headerModal()"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  (onHide)="closeModal()"
+>
+  <form [formGroup]="formQuestion">
+    <div class="formgrid grid">
+      <div class="field col-12 md:col-6">
+        <label class="label">Categoria</label>
+        <div>
+          <p-dropdown
+            [options]="categorias()"
+            formControlName="categoriaId"
+            optionLabel="nome"
+            optionValue="id"
+            [filter]="true"
+            selectedItemsLabel="{0} itens selecionados"
+            emptyFilterMessage="Nenhum resultado encontrado"
+            emptyMessage="Nenhum resultado encontrado"
+            filterBy="nome"
+            appendTo="body"
+            [showClear]="true"
+          >
+            <ng-template pTemplate="selectedItem" let-selectedOption>
+              <div class="flex align-items-center gap-2">
+                <div>{{ selectedOption.nome }}</div>
+              </div>
+            </ng-template>
+          </p-dropdown>
+        </div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="label">Enunciado</label>
+      <textarea
+        rows="5"
+        pInputTextarea
+        class="w-full"
+        formControlName="enunciado"
+      >
+      </textarea>
+    </div>
+
+    <div class="flex justify-content-end gap-4 mt-5">
+      <p-button
+        label="Cancelar"
+        icon="pi pi-times"
+        severity="secondary"
+        size="small"
+        [text]="true"
+        (onClick)="modal = false"
+      />
+
+      <p-button
+        *ngIf="isBtnAdd()"
+        type="submit"
+        label="Adicionar"
+        size="small"
+        icon="pi pi-check"
+        [loading]="isBtnAddLoading()"
+        [disabled]="!formQuestion.valid"
+        (onClick)="addQuestion()"
+      />
+
+      <!-- <p-button
+        *ngIf="!isBtnAdd()"
+        type="submit"
+        label="Salvar"
+        size="small"
+        icon="pi pi-check"
+        [loading]="isBtnAddLoading()"
+        [disabled]="!formQuestion.valid"
+        (onClick)="updateQuestion()" /> -->
+    </div>
+  </form>
+</p-dialog>

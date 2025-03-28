@@ -1,0 +1,30 @@
+@import '../../../utils/variables';
+@import '../../../utils/media-queries';
+
+:host {
+  height: $banner-height - 3rem;
+  display: flex;
+  align-items: center;
+
+  @include media-down(lg) {
+    height: auto;
+    margin: 1rem 0;
+  }
+}
+
+span {
+  font-size: 1.5rem;
+  font-weight: 300;
+}
+
+::ng-deep .p-multiselect {
+  width: 100%;
+}
+
+.grid {
+  margin: 0 $side-space;
+
+  @include media-down(lg) {
+    margin: 0 1rem 0;
+  }
+}

@@ -1,0 +1,21 @@
+:host {
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  gap: 0.7rem;
+}
+
+.label-exportar {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #666;
+}
+
+::ng-deep .p-button-icon {
+  font-size: 0.7rem;
+}
+
+::ng-deep .p-button {
+  font-size: 0.75rem;
+  padding: 0.6rem 0.7rem;
+}
